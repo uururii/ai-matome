@@ -19,12 +19,12 @@ const agentExample = {
   description: '코미디를 좋아하는 사람들을 위해 코미디언의 근황부터 방송, 온라인 콘텐츠, 라이브 공연과 경연 소식까지 흥미로운 정보를 모아 소개합니다.',
   keywords: '코미디언 근황\n예능 출연\n코미디 공연\n스탠드업 코미디\n코미디 경연\n신인 코미디언',
   tone: '밝고 재치 있지만 지나치게 가볍지 않은 분위기. 친근한 말투로 핵심을 명확하게 전달',
-  characterType: 'auto 또는 human / animal / creature / object-inspired',
-  gender: 'no preference 또는 female / male / neutral',
-  age: 'adult, young adult, middle-aged 등',
-  colors: '검정, 아이보리, 민트 포인트',
-  props: '작은 마이크 하나 또는 진행자 느낌의 안경',
-  visualNotes: '세련된 안경을 쓴 성숙한 진행자 느낌. 마이크는 작게 하나만, 장난감 같은 느낌은 피하기',
+  characterType: 'auto or human / animal / creature / object-inspired',
+  gender: 'no preference or female / male / neutral',
+  age: 'adult, young adult, middle-aged, or not applicable',
+  colors: 'black, ivory, and mint accent',
+  props: 'one compact microphone or editorial glasses',
+  visualNotes: 'Mature presenter with refined glasses. Keep the microphone compact; avoid a toy-like or childish look.',
 };
 const imageGeneratorGptUrl = 'https://chatgpt.com/g/g-6abe2a02f49481b89c07d3291865ca3b-ai-agent-image-generator';
 
@@ -74,6 +74,37 @@ function localizeDirectionValue(value, language) {
   return directionTranslations[language]?.[value] || value;
 }
 
+const directionPlaceholders = {
+  ko: {
+    characterType: '자동 선택 또는 사람형 / 동물형 / 생물형 / 사물 기반',
+    gender: '선호 없음 또는 여성 / 남성 / 중성',
+    age: '성인, 젊은 성인, 중년, 또는 해당 없음',
+    colors: '블랙, 아이보리, 민트 포인트',
+    props: '작은 마이크 하나 또는 에디토리얼 안경',
+    visualNotes: '세련된 안경을 쓴 성숙한 진행자. 마이크는 작게, 장난감 같거나 유치한 느낌은 피하기.',
+  },
+  ja: {
+    characterType: '自動選択、または人型 / 動物型 / クリーチャー / 物体ベース',
+    gender: '指定なし、または女性 / 男性 / ニュートラル',
+    age: '大人、若い大人、中年、または該当なし',
+    colors: 'ブラック、アイボリー、ミントのアクセント',
+    props: '小さなマイクまたはエディトリアルな眼鏡',
+    visualNotes: '洗練された眼鏡の成熟したプレゼンター。マイクは小さく、玩具風や子どもっぽさは避ける。',
+  },
+  en: {
+    characterType: agentExample.characterType,
+    gender: agentExample.gender,
+    age: agentExample.age,
+    colors: agentExample.colors,
+    props: agentExample.props,
+    visualNotes: agentExample.visualNotes,
+  },
+};
+
+function getDirectionPlaceholder(field, language) {
+  return directionPlaceholders[language]?.[field] || directionPlaceholders.en[field] || '';
+}
+
 const uiText = {
   ko: {
     profileGenerator: '프로필 생성기', referenceLibrary: '레퍼런스 라이브러리', setupRequired: '설정 필요', mockPreview: '목업 프리뷰',
@@ -86,7 +117,7 @@ const uiText = {
     send: '4개 프롬프트를 GPT로 보내기', sendReady: '전체 프롬프트를 복사하고 AI Agent Image Generator를 엽니다.', sendEmpty: '기본 정보를 입력하면 최종 GPT 배치가 준비됩니다.',
     copyOpen: '복사하고 GPT 열기', noPreview: '아직 프롬프트 시안이 없습니다', noImages: '아직 생성된 이미지가 없습니다', noResults: '아직 생성된 결과가 없습니다.',
     promptReady: '프롬프트 준비됨 · 이미지는 생성하지 않음', imagesComplete: '이미지 완료', previous: '이전 결과', resume: '남은 이미지 이어서 생성', check: '진행 확인',
-    advanced: '고급: 이미지 해석과 전체 프롬프트', interpretation: '이미지 해석', interpretationDesc: 'Agent 정보 기반의 시각 컨셉입니다.',
+    advanced: '고급: 전체 프롬프트', interpretation: '이미지 해석', interpretationDesc: 'Agent 정보 기반의 시각 컨셉입니다. 캐릭터 방향은 화면 언어로 보이고, 생성에는 영어 원문이 사용됩니다.',
     fullPrompt: '생성 프롬프트', fullPromptDesc: '공통 스타일 규칙과 Agent 컨셉을 결합한 프롬프트입니다.', promptPlaceholder: '아직 생성된 프롬프트가 없습니다.',
     reset: '해석 초기화', apply: '변경 적용', unapplied: '적용되지 않은 변경사항', copied: '복사 완료', copyUnavailable: '복사를 사용할 수 없습니다. 텍스트를 직접 선택해 복사하세요.',
     promptEnglish: '생성 요청에는 영문 원본이 사용됩니다.', promptKo: '한국어 번역 보기입니다. 실제 생성 요청에는 영문 원본이 사용됩니다.', promptJa: '日本語訳表示です。実際の生成リクエストには英語原文が使われます。',
@@ -102,7 +133,7 @@ const uiText = {
     send: '4つのプロンプトをGPTへ送る', sendReady: '全プロンプトをコピーしてAI Agent Image Generatorを開きます。', sendEmpty: '基本情報を入力すると最終GPTバッチが準備されます。',
     copyOpen: 'コピーしてGPTを開く', noPreview: 'プロンプト案はまだありません', noImages: '画像はまだ生成されていません', noResults: '生成結果はまだありません。',
     promptReady: 'プロンプト準備完了 · 画像未生成', imagesComplete: '画像完了', previous: '以前の結果', resume: '残りの画像を再開', check: '進行確認',
-    advanced: '詳細: 画像解釈と完全プロンプト', interpretation: '画像解釈', interpretationDesc: 'Agent情報にもとづく視覚コンセプトです。',
+    advanced: '詳細: 完全プロンプト', interpretation: '画像解釈', interpretationDesc: 'Agent情報にもとづく視覚コンセプトです。キャラクター方向は画面言語で表示され、生成には英語原文が使われます。',
     fullPrompt: '生成プロンプト', fullPromptDesc: '共通スタイルルールとAgentコンセプトを組み合わせたプロンプトです。', promptPlaceholder: '生成されたプロンプトはまだありません。',
     reset: '解釈をリセット', apply: '変更を適用', unapplied: '未適用の変更', copied: 'コピーしました', copyUnavailable: 'コピーできません。テキストを選択してコピーしてください。',
     promptEnglish: '生成リクエストには英語原文が使われます。', promptKo: '한국어 번역 보기입니다. 실제 생성 요청에는 영문 원본이 사용됩니다.', promptJa: '日本語訳表示です。実際の生成リクエストには英語原文が使われます。',
@@ -118,7 +149,7 @@ const uiText = {
     send: 'Send all 4 prompts to GPT', sendReady: 'Copy the full batch and open the AI Agent Image Generator.', sendEmpty: 'Enter the basics first to prepare the final GPT batch.',
     copyOpen: 'Copy & open GPT', noPreview: 'No prompt previews yet', noImages: 'No images generated yet', noResults: 'No results yet.',
     promptReady: 'prompts ready · No images generated', imagesComplete: 'images complete', previous: 'Previous results', resume: 'Resume remaining images', check: 'Check progress',
-    advanced: 'Advanced: interpretation and full prompt', interpretation: 'Image interpretation', interpretationDesc: 'A visual concept based on your agent information.',
+    advanced: 'Advanced: full prompt', interpretation: 'Image interpretation', interpretationDesc: 'A visual concept based on your agent information. Character direction is displayed in the UI language while English source text is used for generation.',
     fullPrompt: 'Generated prompt', fullPromptDesc: "Shared style rules combined with your agent's concept.", promptPlaceholder: 'No generated prompt yet.',
     reset: 'Reset interpretation', apply: 'Apply changes', unapplied: 'Unapplied changes', copied: 'Prompt copied', copyUnavailable: 'Copy unavailable. Select the text to copy it.',
     promptEnglish: 'The English source prompt is used for generation.', promptKo: 'Korean translation view. The English source prompt is used for generation.', promptJa: 'Japanese translation view. The English source prompt is used for generation.',
@@ -150,7 +181,7 @@ function App() {
   const remainingWait = Math.max(0, Math.ceil((retryAt - clock) / 1000));
   const interpretationDirty = !interpretationsMatch(reading, readingDraft);
   const canGenerate = connection?.configured && reading && prompt.trim() && !interpretationDirty && !busy && !remainingWait;
-  const canPrepare = connection?.configured && agent.name.trim() && agent.description.trim() && agent.keywords.trim() && !busy && !remainingWait;
+  const canPrepare = connection?.configured && agent.name.trim() && agent.description.trim() && agent.keywords.trim() && agent.tone.trim() && !busy && !remainingWait;
   const previewMode = connection?.mode === 'preview';
   const shownPrompt = prompt;
   const promptView = getPromptView(agent, reading, shownPrompt, promptLanguage);
@@ -336,23 +367,35 @@ function App() {
               <Field label={t.description} required placeholder={agentExample.description} value={agent.description} onChange={v=>updateWithAutoDirection('description',v)} area/>
               <Field label={t.keywords} required placeholder={agentExample.keywords} value={agent.keywords} onChange={v=>updateWithAutoDirection('keywords',v)} area/>
               <Field label={t.tone} required placeholder={agentExample.tone} value={agent.tone} onChange={v=>updateWithAutoDirection('tone',v)} area/>
-              <div className="auto-direction-head"><div><strong>{t.directionTitle}</strong><span>{t.directionDesc}</span></div><Button type="button" variant="outline" size="sm" disabled={!basicComplete} onClick={refreshCharacterDirection}>{uiLanguage === 'ja' ? '再解釈' : uiLanguage === 'en' ? 'Reinterpret' : '다시 해석'}</Button></div>
-              <div className="two-col">
-                <DirectionField label={t.characterType} value={agent.characterType} placeholder={agentExample.characterType} uiLanguage={uiLanguage} onChange={v=>update('characterType',v)}/>
-                <DirectionField label={t.gender} value={agent.gender} placeholder={agentExample.gender} uiLanguage={uiLanguage} onChange={v=>update('gender',v)}/>
-              </div>
-              <div className="two-col">
-                <DirectionField label={t.age} value={agent.age} placeholder={agentExample.age} uiLanguage={uiLanguage} onChange={v=>update('age',v)}/>
-                <DirectionField label={t.colors} value={agent.colors} placeholder={agentExample.colors} uiLanguage={uiLanguage} onChange={v=>update('colors',v)}/>
-              </div>
-              <DirectionField label={t.props} value={agent.props} placeholder={agentExample.props} uiLanguage={uiLanguage} onChange={v=>update('props',v)}/>
-              <DirectionField label={t.visualNotes} value={agent.visualNotes} placeholder={agentExample.visualNotes} uiLanguage={uiLanguage} onChange={v=>update('visualNotes',v)} area/>
               <Button type="submit" className="full" disabled={!canPrepare}>{busy ? `${previewMode ? t.preparing : t.generating} ${completed}/4` : previewMode ? t.create : t.generate}</Button>
             </fieldset></form>
           </section>
           <div className="right-column">
+            <section className="interpretation image-interpretation">
+              <SectionHeading step="02" title={t.interpretation} description={t.interpretationDesc}/>
+              <div className="auto-direction-head"><div><strong>{t.directionTitle}</strong><span>{t.directionDesc}</span></div><Button type="button" variant="outline" size="sm" disabled={!basicComplete} onClick={refreshCharacterDirection}>{uiLanguage === 'ja' ? '再解釈' : uiLanguage === 'en' ? 'Reinterpret' : '다시 해석'}</Button></div>
+              <div className="two-col">
+                <DirectionField label={t.characterType} value={agent.characterType} placeholder={getDirectionPlaceholder('characterType', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('characterType',v)}/>
+                <DirectionField label={t.gender} value={agent.gender} placeholder={getDirectionPlaceholder('gender', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('gender',v)}/>
+              </div>
+              <div className="two-col">
+                <DirectionField label={t.age} value={agent.age} placeholder={getDirectionPlaceholder('age', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('age',v)}/>
+                <DirectionField label={t.colors} value={agent.colors} placeholder={getDirectionPlaceholder('colors', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('colors',v)}/>
+              </div>
+              <DirectionField label={t.props} value={agent.props} placeholder={getDirectionPlaceholder('props', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('props',v)}/>
+              <DirectionField label={t.visualNotes} value={agent.visualNotes} placeholder={getDirectionPlaceholder('visualNotes', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('visualNotes',v)} area/>
+              {reading ? <>
+                <PromptLanguageToggle value={interpretationLanguage} onChange={setInterpretationLanguage} label="Agent 해석 보기 언어"/>
+                <div className="interpret-grid" lang={interpretationLanguage}>{['visualMotif', 'primaryObject', 'mood', 'color'].map(key => <EditableInfo key={`${key}-${readingRevision}`} label={interpretationView.labels[key]} value={interpretationView.values[key]} sourceValue={readingDraft[key]} disabled={busy} onChange={value=>changeInterpretation(key,value)}/>)}</div>
+                <div className="concept-strip" lang={interpretationLanguage}>{['coreRole', 'composition'].map(key => <EditableInfo key={`${key}-${readingRevision}`} label={interpretationView.labels[key]} value={interpretationView.values[key]} sourceValue={readingDraft[key]} disabled={busy} onChange={value=>changeInterpretation(key,value)}/>)}</div>
+                <div className="interpretation-actions"><Button variant="ghost" size="sm" disabled={busy || (!interpretationDirty && interpretationsMatch(reading, analyzeAgent(agent)))} onClick={resetInterpretation}>{t.reset}</Button><Button size="sm" disabled={busy || !interpretationDirty} onClick={applyInterpretation}>{t.apply}</Button></div>
+                {interpretationDirty && <p className="prompt-language-status" role="status">{t.unapplied}</p>}
+                {editedPrompt && <p className="prompt-language-status">Applying or resetting interpretation replaces the edited prompt.</p>}
+                {interpretationLanguage !== 'en' && <p className="prompt-language-status">{interpretationLanguage === 'ko' ? '직접 입력한 내용은 원문 유지' : '直接入力した内容は原文を保持'}</p>}
+              </> : <p className="empty-state compact" role="status">{uiLanguage === 'ja' ? '基本情報を入力すると画像解釈が表示されます。' : uiLanguage === 'en' ? 'Enter the basics to preview the image interpretation.' : '기본 정보를 입력하면 이미지 해석이 표시됩니다.'}</p>}
+            </section>
             <section className="results">
-              <SectionHeading step="02" title={t.results} action={<Button variant="outline" size="sm" disabled={!canGenerate || !job} onClick={()=>generate()}>{previewMode ? t.refresh : t.regenerate}</Button>}/>
+              <SectionHeading step="03" title={t.results} action={<Button variant="outline" size="sm" disabled={!canGenerate || !job} onClick={()=>generate()}>{previewMode ? t.refresh : t.regenerate}</Button>}/>
               <div className="gpt-export-bar">
                 <div><strong>{t.send}</strong><span>{hasVariationPrompts ? t.sendReady : t.sendEmpty}</span></div>
                 <Button disabled={!hasVariationPrompts} onClick={()=>copyVariationBatchPrompt({ openGpt: true })}><Copy/> {t.copyOpen}</Button>
@@ -366,18 +409,6 @@ function App() {
             </section>
             <details className="advanced-panel">
               <summary>{t.advanced}</summary>
-            <section className="interpretation">
-              <SectionHeading step="03" title={t.interpretation} description={t.interpretationDesc}/>
-              <PromptLanguageToggle value={interpretationLanguage} onChange={setInterpretationLanguage} label="Agent 해석 보기 언어"/>
-              {reading ? <>
-                <div className="interpret-grid" lang={interpretationLanguage}>{['visualMotif', 'primaryObject', 'mood', 'color'].map(key => <EditableInfo key={`${key}-${readingRevision}`} label={interpretationView.labels[key]} value={interpretationView.values[key]} sourceValue={readingDraft[key]} disabled={busy} onChange={value=>changeInterpretation(key,value)}/>)}</div>
-                <div className="concept-strip" lang={interpretationLanguage}>{['coreRole', 'composition'].map(key => <EditableInfo key={`${key}-${readingRevision}`} label={interpretationView.labels[key]} value={interpretationView.values[key]} sourceValue={readingDraft[key]} disabled={busy} onChange={value=>changeInterpretation(key,value)}/>)}</div>
-                <div className="interpretation-actions"><Button variant="ghost" size="sm" disabled={busy || (!interpretationDirty && interpretationsMatch(reading, analyzeAgent(agent)))} onClick={resetInterpretation}>{t.reset}</Button><Button size="sm" disabled={busy || !interpretationDirty} onClick={applyInterpretation}>{t.apply}</Button></div>
-                {interpretationDirty && <p className="prompt-language-status" role="status">{t.unapplied}</p>}
-                {editedPrompt && <p className="prompt-language-status">Applying or resetting interpretation replaces the edited prompt.</p>}
-                {interpretationLanguage !== 'en' && <p className="prompt-language-status">{interpretationLanguage === 'ko' ? '직접 입력한 내용은 원문 유지' : '直接入力した内容は原文を保持'}</p>}
-              </> : <p className="empty-state" role="status">아직 분석된 Agent 정보가 없습니다.</p>}
-            </section>
             <section className="prompt-panel">
               <SectionHeading step="04" title={t.fullPrompt} description={t.fullPromptDesc} action={<Button variant="ghost" size="icon-sm" title="Copy prompt" aria-label="Copy prompt" disabled={!promptView.text.trim()} onClick={copyPrompt}><Copy/></Button>}/>
               <PromptLanguageToggle value={promptLanguage} onChange={setPromptLanguage}/>
