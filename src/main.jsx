@@ -28,6 +28,52 @@ const agentExample = {
 };
 const imageGeneratorGptUrl = 'https://chatgpt.com/g/g-6abe2a02f49481b89c07d3291865ca3b-ai-agent-image-generator';
 
+const directionTranslations = {
+  ko: {
+    'auto': '자동 선택',
+    'human': '사람형',
+    'object-inspired': '사물 기반 캐릭터',
+    'no preference': '선호 없음',
+    'not applicable': '해당 없음',
+    'adult or young adult': '성인 또는 젊은 성인',
+    'warm neutrals with one bright accent': '따뜻한 뉴트럴 톤과 밝은 포인트 색 하나',
+    'black, denim, soft neutrals, and one vivid accent': '블랙, 데님, 부드러운 뉴트럴 톤과 선명한 포인트 색 하나',
+    'clean neutrals with blue or mint accent': '깔끔한 뉴트럴 톤과 블루 또는 민트 포인트',
+    'balanced contemporary colors with one signature accent': '균형 잡힌 현대적 컬러와 시그니처 포인트 색 하나',
+    'one compact microphone or presenter cue': '작은 마이크 하나 또는 진행자 느낌의 단서',
+    'editorial glasses, headset, or one compact bulletin object': '에디토리얼 안경, 헤드셋 또는 작은 소식 오브젝트 하나',
+    'headphones or one clean fan-culture accent': '헤드폰 또는 깔끔한 팬 문화 포인트 하나',
+    'one category-defining ball or sporty headwear cue': '카테고리를 보여주는 공 또는 스포티한 헤드웨어 단서 하나',
+    'one simplified food-shaped motif integrated into the character': '캐릭터에 통합된 단순한 음식 형태 모티프 하나',
+    'one distinctive category cue only if needed': '필요할 때만 카테고리를 보여주는 특징 하나',
+    'Mature V2 editorial avatar, close bust crop, simplified facial marks, contemporary styling, one distinctive feature, minimal props, not childish or chibi.': '성숙한 V2 에디토리얼 아바타, 클로즈업 bust crop, 단순한 얼굴 표시, 현대적인 스타일링, 하나의 뚜렷한 특징, 최소한의 소품, 유치하거나 chibi처럼 보이지 않게.',
+  },
+  ja: {
+    'auto': '自動選択',
+    'human': '人型',
+    'object-inspired': '物体ベースのキャラクター',
+    'no preference': '指定なし',
+    'not applicable': '該当なし',
+    'adult or young adult': '大人または若い大人',
+    'warm neutrals with one bright accent': '温かいニュートラルと明るいアクセント色を一つ',
+    'black, denim, soft neutrals, and one vivid accent': 'ブラック、デニム、柔らかなニュートラル、鮮やかなアクセントを一つ',
+    'clean neutrals with blue or mint accent': 'クリーンなニュートラルにブルーまたはミントのアクセント',
+    'balanced contemporary colors with one signature accent': 'バランスのよい現代的な色とシグネチャーアクセントを一つ',
+    'one compact microphone or presenter cue': '小さなマイクまたはプレゼンターらしい要素を一つ',
+    'editorial glasses, headset, or one compact bulletin object': 'エディトリアルな眼鏡、ヘッドセット、または小さなニュースオブジェクトを一つ',
+    'headphones or one clean fan-culture accent': 'ヘッドホンまたはすっきりしたファン文化のアクセントを一つ',
+    'one category-defining ball or sporty headwear cue': 'カテゴリーを示すボールまたはスポーティな帽子の要素を一つ',
+    'one simplified food-shaped motif integrated into the character': 'キャラクターに統合された単純な食べ物形モチーフを一つ',
+    'one distinctive category cue only if needed': '必要な場合のみカテゴリーを示す特徴を一つ',
+    'Mature V2 editorial avatar, close bust crop, simplified facial marks, contemporary styling, one distinctive feature, minimal props, not childish or chibi.': '成熟したV2エディトリアルアバター、近接バストクロップ、単純な顔の印、現代的なスタイリング、一つの明確な特徴、最小限の小物。子どもっぽさやちび風は避ける。',
+  },
+};
+
+function localizeDirectionValue(value, language) {
+  if (!value || language === 'en') return value;
+  return directionTranslations[language]?.[value] || value;
+}
+
 const uiText = {
   ko: {
     profileGenerator: '프로필 생성기', referenceLibrary: '레퍼런스 라이브러리', setupRequired: '설정 필요', mockPreview: '목업 프리뷰',
@@ -292,15 +338,15 @@ function App() {
               <Field label={t.tone} required placeholder={agentExample.tone} value={agent.tone} onChange={v=>updateWithAutoDirection('tone',v)} area/>
               <div className="auto-direction-head"><div><strong>{t.directionTitle}</strong><span>{t.directionDesc}</span></div><Button type="button" variant="outline" size="sm" disabled={!basicComplete} onClick={refreshCharacterDirection}>{uiLanguage === 'ja' ? '再解釈' : uiLanguage === 'en' ? 'Reinterpret' : '다시 해석'}</Button></div>
               <div className="two-col">
-                <Field label={t.characterType} placeholder={agentExample.characterType} value={agent.characterType} onChange={v=>update('characterType',v)}/>
-                <Field label={t.gender} placeholder={agentExample.gender} value={agent.gender} onChange={v=>update('gender',v)}/>
+                <DirectionField label={t.characterType} value={agent.characterType} placeholder={agentExample.characterType} uiLanguage={uiLanguage} onChange={v=>update('characterType',v)}/>
+                <DirectionField label={t.gender} value={agent.gender} placeholder={agentExample.gender} uiLanguage={uiLanguage} onChange={v=>update('gender',v)}/>
               </div>
               <div className="two-col">
-                <Field label={t.age} placeholder={agentExample.age} value={agent.age} onChange={v=>update('age',v)}/>
-                <Field label={t.colors} placeholder={agentExample.colors} value={agent.colors} onChange={v=>update('colors',v)}/>
+                <DirectionField label={t.age} value={agent.age} placeholder={agentExample.age} uiLanguage={uiLanguage} onChange={v=>update('age',v)}/>
+                <DirectionField label={t.colors} value={agent.colors} placeholder={agentExample.colors} uiLanguage={uiLanguage} onChange={v=>update('colors',v)}/>
               </div>
-              <Field label={t.props} placeholder={agentExample.props} value={agent.props} onChange={v=>update('props',v)}/>
-              <Field label={t.visualNotes} placeholder={agentExample.visualNotes} value={agent.visualNotes} onChange={v=>update('visualNotes',v)} area/>
+              <DirectionField label={t.props} value={agent.props} placeholder={agentExample.props} uiLanguage={uiLanguage} onChange={v=>update('props',v)}/>
+              <DirectionField label={t.visualNotes} value={agent.visualNotes} placeholder={agentExample.visualNotes} uiLanguage={uiLanguage} onChange={v=>update('visualNotes',v)} area/>
               <Button type="submit" className="full" disabled={!canPrepare}>{busy ? `${previewMode ? t.preparing : t.generating} ${completed}/4` : previewMode ? t.create : t.generate}</Button>
             </fieldset></form>
           </section>
@@ -353,6 +399,13 @@ function SectionHeading({step,title,description,action}) { return <div className
 function Field({label,required,placeholder,value,onChange,area}) {
   const props = {required,placeholder,value,onChange:e=>onChange(e.target.value),lang:/[ぁ-んァ-ン]/.test(value)?'ja':'ko'};
   return <label className="field"><span className="field-label">{label}{required&&<span className="required" aria-hidden="true"> *</span>}</span>{area?<Textarea {...props} rows={label.toLowerCase().includes('keyword') || label.includes('키워드') || label.includes('キーワード') ? 5:3}/>:<Input {...props}/>}</label>
+}
+function DirectionField({label,value,placeholder,onChange,area,uiLanguage}) {
+  const [editing, setEditing] = useState(false);
+  const display = localizeDirectionValue(value, uiLanguage);
+  const editHint = uiLanguage === 'ja' ? '生成用の英語原文を編集' : uiLanguage === 'en' ? 'Edit English source used for generation' : '생성용 영어 원문 편집';
+  const props = { placeholder, value, onChange:e=>onChange(e.target.value), onBlur:()=>setEditing(false), autoFocus:true, lang:'en' };
+  return <label className="field direction-field"><span className="field-label">{label}</span>{editing ? <>{area?<Textarea {...props} rows={3}/>:<Input {...props}/>}<span className="field-hint">{editHint}</span></> : <button type="button" className="direction-value" onClick={()=>setEditing(true)}>{display || <span className="muted-value">{placeholder}</span>}</button>}</label>
 }
 function Info({label,value}) { return <div className="info"><span>{label}</span><p>{value}</p></div> }
 function EditableInfo({label,value,sourceValue,disabled,onChange}) {
