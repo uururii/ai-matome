@@ -69,11 +69,30 @@ export function analyzeAgent(agent) {
     coreRole: agent.purpose || agent.role || (isNews ? 'A selective curator who makes fast-moving updates feel clear and approachable' : 'A focused guide who turns a niche into a recognizable daily briefing'),
     personality: agent.tone || 'Warm, contemporary, curious, and lightly expressive without becoming childish',
     visualMotif: [agent.visualNotes || agent.concept, motif].filter(Boolean).join(': ') || motif,
-    primaryObject: agent.visualNotes || (isComedy ? 'compact microphone or confident presenter accessory' : isNews ? 'one compact bulletin object or editorial eyewear/headwear cue' : 'category-defining styling cue or hero motif'),
+    primaryObject: agent.props || agent.visualNotes || (isComedy ? 'compact microphone or confident presenter accessory' : isNews ? 'one compact bulletin object or editorial eyewear/headwear cue' : 'category-defining styling cue or hero motif'),
     secondaryObjects: 'none by default; at most one small supporting prop if essential to the category',
     mood: isComedy ? 'witty, confident, energetic, modern' : 'approachable, focused, contemporary, optimistic',
     composition: `${agent.characterType ? `${agent.characterType} character direction; ` : ''}${agent.gender ? `${agent.gender} gender impression; ` : ''}${agent.age ? `${agent.age} age impression; ` : ''}Mature close bust portrait or iconic non-human avatar in the V2 editorial 3D style; visible neck/shoulders when relevant, one distinctive feature, minimal facial marks, and a circular-crop-safe silhouette`,
     color: agent.colors || (isComedy ? 'warm grounded neutrals with one bright accent' : 'balanced contemporary palette with natural tones plus one controlled signature accent'),
     balance: isComedy ? 'Character-led, with one compact cue supporting the expression' : 'Balanced avatar identity and one symbolic feature'
+  };
+}
+
+export function deriveCharacterDirection(agent) {
+  const text = Object.values(agent).join(" ").toLowerCase();
+  const isComedy = /お笑い|코미디|comedy|funny|humor/.test(text);
+  const isNews = /news|뉴스|最新|trend|트렌드|情報/.test(text);
+  const isMusic = /music|song|chart|idol|k-pop|kpop|음악|아이돌|노래|チャート|音楽/.test(text);
+  const isFood = /food|맛집|음식|먹방|グルメ|食|コンビニ/.test(text);
+  const isSport = /sport|sports|축구|야구|골프|soccer|baseball|golf|スポーツ|野球|サッカー|ゴルフ/.test(text);
+  const characterType = isFood || isSport ? 'object-inspired' : isMusic || isComedy || isNews ? 'human' : 'auto';
+  const props = isComedy ? 'one compact microphone or presenter cue' : isNews ? 'editorial glasses, headset, or one compact bulletin object' : isMusic ? 'headphones or one clean fan-culture accent' : isSport ? 'one category-defining ball or sporty headwear cue' : isFood ? 'one simplified food-shaped motif integrated into the character' : 'one distinctive category cue only if needed';
+  return {
+    characterType,
+    gender: 'no preference',
+    age: characterType === 'human' ? 'adult or young adult' : 'not applicable',
+    colors: isComedy ? 'warm neutrals with one bright accent' : isMusic ? 'black, denim, soft neutrals, and one vivid accent' : isNews ? 'clean neutrals with blue or mint accent' : 'balanced contemporary colors with one signature accent',
+    props,
+    visualNotes: 'Mature V2 editorial avatar, close bust crop, simplified facial marks, contemporary styling, one distinctive feature, minimal props, not childish or chibi.',
   };
 }

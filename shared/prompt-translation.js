@@ -54,7 +54,7 @@ const catalogs = {
     labels: {
       version: '버전', illustration: '일러스트 스타일', proportions: '비율', face: '얼굴', headToBody: '머리와 몸 비율', characterType: '캐릭터 유형', hair: '머리카락', styling: '스타일링', material: '재질', geometry: '형태', metaphor: '시각적 비유', props: '소품', composition: '구도', background: '배경', lighting: '조명', color: '색상', rendering: '렌더링', detail: '디테일', avoid: '금지 요소',
       subject: '피사체', expression: '표정', hairAndCostume: '머리카락과 의상', materialTreatment: '재질 처리', symbol: '상징', framing: '프레이밍', backgroundConsistency: '배경 일관성', legacyNote: 'V1/V2 메모',
-      name: '이름', description: '설명', keywords: '키워드', role: '역할', concept: '컨셉', tone: '톤', coreRole: '핵심 역할', personality: '성격', visualMotif: '시각적 모티프', primaryObject: '주요 소품', secondaryObjects: '보조 소품', mood: '분위기', balance: '균형',
+      name: '이름', description: '설명', keywords: '키워드', purpose: '목적/컨셉', role: '역할', concept: '컨셉', characterType: '캐릭터 유형', gender: '성별 인상', age: '연령대 인상', colors: '선호 색상', props: '소품', visualNotes: '비주얼 노트', tone: '톤', coreRole: '핵심 역할', personality: '성격', visualMotif: '시각적 모티프', primaryObject: '주요 소품', secondaryObjects: '보조 소품', mood: '분위기', balance: '균형',
     },
     style: {
       illustration: '몇 개의 장난감 같은 기하학 덩어리로 만든 단순한 3D 마스코트 또는 아바타. 개성 있고 장난스러우며 상징적이어야 합니다. 신체와 표정은 의도적으로 축약하세요. 일반적인 귀여운 3D 장르가 아니라 제공된 아바타 체계에 맞추세요.',
@@ -103,7 +103,7 @@ const catalogs = {
     labels: {
       version: 'バージョン', illustration: 'イラストスタイル', proportions: '比率', face: '顔', headToBody: '頭身', characterType: 'キャラクター種別', hair: '髪', styling: 'スタイリング', material: '素材', geometry: '形状', metaphor: '視覚的比喩', props: '小物', composition: '構図', background: '背景', lighting: '照明', color: '色', rendering: 'レンダリング', detail: 'ディテール', avoid: '避ける要素',
       subject: '被写体', expression: '表情', hairAndCostume: '髪と衣装', materialTreatment: '素材表現', symbol: 'シンボル', framing: 'フレーミング', backgroundConsistency: '背景の一貫性', legacyNote: 'V1/V2メモ',
-      name: '名前', description: '説明', keywords: 'キーワード', role: '役割', concept: 'コンセプト', tone: 'トーン', coreRole: '主な役割', personality: '性格', visualMotif: '視覚的モチーフ', primaryObject: '主な小物', secondaryObjects: '補助的な小物', mood: '雰囲気', balance: 'バランス',
+      name: '名前', description: '説明', keywords: 'キーワード', purpose: '目的/コンセプト', role: '役割', concept: 'コンセプト', characterType: 'キャラクター種別', gender: '性別の印象', age: '年齢印象', colors: '希望カラー', props: '小物', visualNotes: 'ビジュアルメモ', tone: 'トーン', coreRole: '主な役割', personality: '性格', visualMotif: '視覚的モチーフ', primaryObject: '主な小物', secondaryObjects: '補助的な小物', mood: '雰囲気', balance: 'バランス',
     },
     style: {
       illustration: '少数のおもちゃのような幾何学的な塊で作る、シンプルな3Dマスコット／アバター。個性的で遊び心があり、象徴的にしてください。身体と表情は意図的に省略し、一般的なかわいい3Dジャンルではなく、提供されたアバター体系に合わせてください。',
@@ -187,9 +187,10 @@ export function getInterpretationView(agent, interpretation, language = 'en') {
   const original = analyzeAgent(agent);
   const localizeValue = (key, value) => {
     if (value !== original[key]) return value;
-    if ((key === 'coreRole' && agent.role) || (key === 'personality' && agent.tone)) return value;
-    const prefix = `${agent.concept}: `;
-    if (key === 'visualMotif' && agent.concept && value.startsWith(prefix)) {
+    if ((key === 'coreRole' && (agent.purpose || agent.role)) || (key === 'personality' && agent.tone)) return value;
+    const concept = agent.visualNotes || agent.concept;
+    const prefix = `${concept}: `;
+    if (key === 'visualMotif' && concept && value.startsWith(prefix)) {
       const phrase = value.slice(prefix.length);
       return `${prefix}${translations.get(phrase) || phrase}`;
     }

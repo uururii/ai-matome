@@ -11,7 +11,7 @@ export const variationPlans = [
 export function normalizeAgent(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Agent information is required.');
   const agent = {};
-  for (const field of ['name', 'description', 'keywords', 'purpose', 'role', 'concept', 'characterType', 'gender', 'age', 'colors', 'visualNotes', 'tone']) {
+  for (const field of ['name', 'description', 'keywords', 'purpose', 'role', 'concept', 'characterType', 'gender', 'age', 'colors', 'props', 'visualNotes', 'tone']) {
     if (input[field] != null && typeof input[field] !== 'string') throw new Error(`${field} must be text.`);
     agent[field] = (input[field] || '').trim();
     if (agent[field].length > 4000) throw new Error(`${field} must be 4,000 characters or fewer.`);
