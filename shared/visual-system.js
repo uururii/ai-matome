@@ -66,14 +66,14 @@ export function analyzeAgent(agent) {
         ? 'audio or fan-culture cue such as headphones, glasses, or one clean accent accessory'
         : 'one distinctive silhouette, styling cue, or category-defining object that instantly signals the Agent category';
   return {
-    coreRole: agent.role || (isNews ? 'A selective curator who makes fast-moving updates feel clear and approachable' : 'A focused guide who turns a niche into a recognizable daily briefing'),
+    coreRole: agent.purpose || agent.role || (isNews ? 'A selective curator who makes fast-moving updates feel clear and approachable' : 'A focused guide who turns a niche into a recognizable daily briefing'),
     personality: agent.tone || 'Warm, contemporary, curious, and lightly expressive without becoming childish',
-    visualMotif: agent.concept ? `${agent.concept}: ${motif}` : motif,
-    primaryObject: isComedy ? 'compact microphone or confident presenter accessory' : isNews ? 'one compact bulletin object or editorial eyewear/headwear cue' : 'category-defining styling cue or hero motif',
+    visualMotif: [agent.visualNotes || agent.concept, motif].filter(Boolean).join(': ') || motif,
+    primaryObject: agent.visualNotes || (isComedy ? 'compact microphone or confident presenter accessory' : isNews ? 'one compact bulletin object or editorial eyewear/headwear cue' : 'category-defining styling cue or hero motif'),
     secondaryObjects: 'none by default; at most one small supporting prop if essential to the category',
     mood: isComedy ? 'witty, confident, energetic, modern' : 'approachable, focused, contemporary, optimistic',
-    composition: 'Mature close bust portrait or iconic non-human avatar in the V2 editorial 3D style; visible neck/shoulders when relevant, one distinctive feature, minimal facial marks, and a circular-crop-safe silhouette',
-    color: isComedy ? 'warm grounded neutrals with one bright accent' : 'balanced contemporary palette with natural tones plus one controlled signature accent',
+    composition: `${agent.characterType ? `${agent.characterType} character direction; ` : ''}${agent.gender ? `${agent.gender} gender impression; ` : ''}${agent.age ? `${agent.age} age impression; ` : ''}Mature close bust portrait or iconic non-human avatar in the V2 editorial 3D style; visible neck/shoulders when relevant, one distinctive feature, minimal facial marks, and a circular-crop-safe silhouette`,
+    color: agent.colors || (isComedy ? 'warm grounded neutrals with one bright accent' : 'balanced contemporary palette with natural tones plus one controlled signature accent'),
     balance: isComedy ? 'Character-led, with one compact cue supporting the expression' : 'Balanced avatar identity and one symbolic feature'
   };
 }

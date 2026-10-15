@@ -17,15 +17,19 @@ import { generateProfileImages, getGenerationStatus, getGeneration, resumeGenera
 const agentExample = {
   name: '코미디 소식통',
   description: '코미디를 좋아하는 사람들을 위해 코미디언의 근황부터 방송, 온라인 콘텐츠, 라이브 공연과 경연 소식까지 흥미로운 정보를 모아 소개합니다.',
-  role: '코미디언의 활동과 최신 코미디 트렌드를 빠르게 발견하고 정리하는 큐레이터',
-  concept: '새로운 웃음을 발견하고 소개하는 호기심 많은 캐릭터. 코미디 문화를 폭넓게 즐기는 친근한 안내자',
+  purpose: '코미디언의 활동과 최신 코미디 트렌드를 빠르게 발견하고 정리하는 큐레이터',
+  characterType: 'auto 또는 human / animal / creature / object-inspired',
+  gender: 'no preference 또는 female / male / neutral',
+  age: 'adult, young adult, middle-aged 등',
+  colors: '검정, 아이보리, 민트 포인트',
+  visualNotes: '세련된 안경을 쓴 성숙한 진행자 느낌. 마이크는 작게 하나만, 장난감 같은 느낌은 피하기',
   tone: '밝고 재치 있지만 지나치게 가볍지 않은 분위기. 친근한 말투로 핵심을 명확하게 전달',
   keywords: '코미디언 근황\n예능 출연\n코미디 공연\n스탠드업 코미디\n코미디 경연\n신인 코미디언',
 };
 const imageGeneratorGptUrl = 'https://chatgpt.com/g/g-6abe2a02f49481b89c07d3291865ca3b-ai-agent-image-generator';
 
 function App() {
-  const [agent, setAgent] = useState({ name: '', description: '', role: '', concept: '', tone: '', keywords: '' });
+  const [agent, setAgent] = useState({ name: '', description: '', purpose: '', characterType: '', gender: '', age: '', colors: '', visualNotes: '', tone: '', keywords: '' });
   const [tab, setTab] = useState('generator');
   const [reading, setReading] = useState(null);
   const [readingDraft, setReadingDraft] = useState(null);
@@ -48,6 +52,7 @@ function App() {
   const remainingWait = Math.max(0, Math.ceil((retryAt - clock) / 1000));
   const interpretationDirty = !interpretationsMatch(reading, readingDraft);
   const canGenerate = connection?.configured && reading && prompt.trim() && !interpretationDirty && !busy && !remainingWait;
+  const canPrepare = connection?.configured && agent.name.trim() && agent.description.trim() && agent.keywords.trim() && !busy && !remainingWait;
   const previewMode = connection?.mode === 'preview';
   const shownPrompt = prompt;
   const promptView = getPromptView(agent, reading, shownPrompt, promptLanguage);
@@ -107,6 +112,21 @@ function App() {
       setAgent(normalized); setReading(next); setReadingDraft(next); setReadingRevision(value=>value+1); setPrompt(buildImagePrompt(normalized, next));
       setNotice('Agent analysis updated'); setError('');
     } catch (e) { setError(e.message); }
+  };
+  const prepareVariations = async () => {
+    if (sending.current || !canPrepare) return;
+    try {
+      const normalized = normalizeAgent(agent);
+      const nextReading = analyzeAgent(normalized);
+      const nextPrompt = buildImagePrompt(normalized, nextReading);
+      sending.current = true; setSubmitting(true); setError(''); setPollPaused(false);
+      setAgent(normalized); setReading(nextReading); setReadingDraft(nextReading); setReadingRevision(value=>value+1); setPrompt(nextPrompt); setSelected(null);
+      const next = await generateProfileImages({
+        agent: normalized, interpretation: nextReading, prompt: nextPrompt, requestId: crypto.randomUUID(),
+      });
+      setJob(next); setNotice(previewMode ? '4 variation prompts prepared' : '4 variations started');
+    } catch (e) { setError(e.message); if (e.retryAt) setRetryAt(e.retryAt); }
+    finally { sending.current = false; setSubmitting(false); }
   };
   const changeInterpretation = (key, value) => {
     setReadingDraft(previous => ({ ...previous, [key]: value }));
@@ -190,18 +210,28 @@ function App() {
         {remainingWait > 0 && <p className="demo-note" role="status">Retry available in {remainingWait}s. No automatic API retry will be sent.</p>}
         <div className="studio-grid">
           <section className="input-panel">
-            <SectionHeading step="01" title="Agent information"/>
-            <form onSubmit={e=>{e.preventDefault();analyze();}}><fieldset disabled={busy}>
+            <SectionHeading step="01" title="Agent / Character brief" description="Describe the agent and the character direction in one place."/>
+            <form onSubmit={e=>{e.preventDefault();prepareVariations();}}><fieldset disabled={busy}>
               <Field label="Agent name" required placeholder={agentExample.name} value={agent.name} onChange={v=>update('name',v)}/>
               <Field label="Description" required placeholder={agentExample.description} value={agent.description} onChange={v=>update('description',v)} area/>
-              <Field label="Role" placeholder={agentExample.role} value={agent.role} onChange={v=>update('role',v)} area/>
-              <Field label="Concept" placeholder={agentExample.concept} value={agent.concept} onChange={v=>update('concept',v)} area/>
+              <Field label="Purpose / concept" placeholder={agentExample.purpose} value={agent.purpose} onChange={v=>update('purpose',v)} area/>
+              <div className="two-col">
+                <Field label="Character type" placeholder={agentExample.characterType} value={agent.characterType} onChange={v=>update('characterType',v)}/>
+                <Field label="Gender" placeholder={agentExample.gender} value={agent.gender} onChange={v=>update('gender',v)}/>
+              </div>
+              <div className="two-col">
+                <Field label="Age impression" placeholder={agentExample.age} value={agent.age} onChange={v=>update('age',v)}/>
+                <Field label="Preferred colors" placeholder={agentExample.colors} value={agent.colors} onChange={v=>update('colors',v)}/>
+              </div>
+              <Field label="Visual notes" placeholder={agentExample.visualNotes} value={agent.visualNotes} onChange={v=>update('visualNotes',v)} area/>
               <Field label="Tone" placeholder={agentExample.tone} value={agent.tone} onChange={v=>update('tone',v)} area/>
               <Field label="Keywords" required placeholder={agentExample.keywords} value={agent.keywords} onChange={v=>update('keywords',v)} area/>
-              <Button type="submit" className="full">Analyze agent</Button>
+              <Button type="submit" className="full" disabled={!canPrepare}>{busy ? `${previewMode ? "Preparing" : "Generating"} ${completed}/4` : previewMode ? "Create 4 variation prompts" : "Generate 4 variations"}</Button>
             </fieldset></form>
           </section>
           <div className="right-column">
+            <details className="advanced-panel">
+              <summary>Advanced: interpretation and full prompt</summary>
             <section className="interpretation">
               <SectionHeading step="02" title="Agent interpretation" description="A visual concept based on your agent information."/>
               <PromptLanguageToggle value={interpretationLanguage} onChange={setInterpretationLanguage} label="Agent 해석 보기 언어"/>
@@ -221,10 +251,11 @@ function App() {
               {reading && <p id="prompt-language-status" className="prompt-language-status" role="status">{promptView.status === 'edited' ? '직접 수정한 프롬프트는 자동 번역하지 않습니다. 수정된 원문을 표시합니다.' : promptLanguage === 'en' ? '생성 요청에는 영문 원본이 사용됩니다.' : promptLanguage === 'ko' ? '앱 생성 문구의 한국어 번역입니다. Agent 입력은 원문을 유지하며, 생성 요청에는 영문 원본이 사용됩니다.' : 'アプリ生成文の日本語訳です。Agentの入力は原文を保持し、生成リクエストには英語の原文を使用します。'}</p>}
               <div className="prompt-footer"><Button disabled={!canGenerate} onClick={()=>generate()}>{busy ? `${previewMode ? "Preparing" : "Generating"} ${completed}/4` : previewMode ? "Preview 4 variations" : "Generate 4 variations"}</Button></div>
             </section>
+            </details>
           </div>
         </div>
         <section className="results">
-          <SectionHeading step="04" title="Profile image variations" action={<Button variant="outline" size="sm" disabled={!canGenerate || !job} onClick={()=>generate()}>{previewMode ? "Refresh previews" : "Regenerate all"}</Button>}/>
+          <SectionHeading step="02" title="Profile image variations" action={<Button variant="outline" size="sm" disabled={!canGenerate || !job} onClick={()=>generate()}>{previewMode ? "Refresh previews" : "Regenerate all"}</Button>}/>
           <div className="gpt-export-bar">
             <div><strong>Send all 4 prompts to GPT</strong><span>{hasVariationPrompts ? 'Copy the full batch and open the AI Agent Image Generator.' : 'Run Preview 4 variations first to create the four final prompts.'}</span></div>
             <Button disabled={!hasVariationPrompts} onClick={()=>copyVariationBatchPrompt({ openGpt: true })}><Copy/> Copy & open GPT</Button>
