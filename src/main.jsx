@@ -230,6 +230,20 @@ function App() {
             </fieldset></form>
           </section>
           <div className="right-column">
+            <section className="results">
+              <SectionHeading step="02" title="Profile image variations" action={<Button variant="outline" size="sm" disabled={!canGenerate || !job} onClick={()=>generate()}>{previewMode ? "Refresh previews" : "Regenerate all"}</Button>}/>
+              <div className="gpt-export-bar">
+                <div><strong>Send all 4 prompts to GPT</strong><span>{hasVariationPrompts ? 'Copy the full batch and open the AI Agent Image Generator.' : 'Create 4 variation prompts first to prepare the final GPT batch.'}</span></div>
+                <Button disabled={!hasVariationPrompts} onClick={()=>copyVariationBatchPrompt({ openGpt: true })}><Copy/> Copy & open GPT</Button>
+              </div>
+              <div className="generation-summary" role="status"><span>{busy ? `Processing · ${completed}/4 complete` : job ? `${completed}/4 ${job.mode === 'preview' ? 'prompts ready · No images generated' : 'images complete'}` : previewMode ? 'No prompt previews yet' : 'No images generated yet'}</span>
+                {previousResults && <Badge variant="outline">Previous results</Badge>}
+                {job?.status === 'failed' && <Button variant="outline" size="sm" disabled={!canGenerate || previousResults} onClick={()=>generate(true)}>Resume remaining images</Button>}
+                {pollPaused && <Button variant="outline" size="sm" onClick={checkProgress}>Check progress</Button>}
+              </div>
+              {job ? <div className="variation-grid">{variations.map((r,i)=><Variation key={`${job.id}-${i}`} item={r} index={i} agent={job.agent} interpretation={job.interpretation} sourcePrompt={job.sourcePrompt} selected={selected===i} onSelect={()=>setSelected(i)}/>)}</div> : <p className="empty-state" role="status">아직 생성된 결과가 없습니다.</p>}
+              {selected!==null&&<div className="selected-bar"><span><Check size={16}/> Variation {selected+1} selected</span><Button asChild size="sm"><a href={variations[selected].url} download>Download image</a></Button></div>}
+            </section>
             <details className="advanced-panel">
               <summary>Advanced: interpretation and full prompt</summary>
             <section className="interpretation">
@@ -254,20 +268,6 @@ function App() {
             </details>
           </div>
         </div>
-        <section className="results">
-          <SectionHeading step="02" title="Profile image variations" action={<Button variant="outline" size="sm" disabled={!canGenerate || !job} onClick={()=>generate()}>{previewMode ? "Refresh previews" : "Regenerate all"}</Button>}/>
-          <div className="gpt-export-bar">
-            <div><strong>Send all 4 prompts to GPT</strong><span>{hasVariationPrompts ? 'Copy the full batch and open the AI Agent Image Generator.' : 'Run Preview 4 variations first to create the four final prompts.'}</span></div>
-            <Button disabled={!hasVariationPrompts} onClick={()=>copyVariationBatchPrompt({ openGpt: true })}><Copy/> Copy & open GPT</Button>
-          </div>
-          <div className="generation-summary" role="status"><span>{busy ? `Processing · ${completed}/4 complete` : job ? `${completed}/4 ${job.mode === 'preview' ? 'prompts ready · No images generated' : 'images complete'}` : previewMode ? 'No prompt previews yet' : 'No images generated yet'}</span>
-            {previousResults && <Badge variant="outline">Previous results</Badge>}
-            {job?.status === 'failed' && <Button variant="outline" size="sm" disabled={!canGenerate || previousResults} onClick={()=>generate(true)}>Resume remaining images</Button>}
-            {pollPaused && <Button variant="outline" size="sm" onClick={checkProgress}>Check progress</Button>}
-          </div>
-          {job ? <div className="variation-grid">{variations.map((r,i)=><Variation key={`${job.id}-${i}`} item={r} index={i} agent={job.agent} interpretation={job.interpretation} sourcePrompt={job.sourcePrompt} selected={selected===i} onSelect={()=>setSelected(i)}/>)}</div> : <p className="empty-state" role="status">아직 생성된 결과가 없습니다.</p>}
-          {selected!==null&&<div className="selected-bar"><span><Check size={16}/> Variation {selected+1} selected</span><Button asChild size="sm"><a href={variations[selected].url} download>Download image</a></Button></div>}
-        </section>
         <div className="notice" role="status">{notice}</div>
       </main> : <Library refs={refs}/>}
     </div>
