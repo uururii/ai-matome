@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
-import { WandSparkles, Copy, Check, Image as ImageIcon, Layers3, LibraryBig, Moon, Sun } from 'lucide-react';
+import { WandSparkles, Copy, Layers3, LibraryBig, Moon, Sun } from 'lucide-react';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
 import { Textarea } from './components/ui/textarea';
@@ -362,8 +362,7 @@ function App() {
                 {job?.status === 'failed' && <Button variant="outline" size="sm" disabled={!canGenerate || previousResults} onClick={()=>generate(true)}>{t.resume}</Button>}
                 {pollPaused && <Button variant="outline" size="sm" onClick={checkProgress}>{t.check}</Button>}
               </div>
-              {job ? <div className="variation-grid">{variations.map((r,i)=><Variation key={`${job.id}-${i}`} item={r} index={i} agent={job.agent} interpretation={job.interpretation} sourcePrompt={job.sourcePrompt} selected={selected===i} onSelect={()=>setSelected(i)} uiLanguage={uiLanguage}/>)}</div> : <p className="empty-state" role="status">{t.noResults}</p>}
-              {selected!==null&&<div className="selected-bar"><span><Check size={16}/> Variation {selected+1} selected</span><Button asChild size="sm"><a href={variations[selected].url} download>Download image</a></Button></div>}
+              {job ? <div className="variation-grid">{variations.map((r,i)=><Variation key={`${job.id}-${i}`} item={r} index={i} agent={job.agent} interpretation={job.interpretation} sourcePrompt={job.sourcePrompt} uiLanguage={uiLanguage}/>)}</div> : <p className="empty-state" role="status">{t.noResults}</p>}
             </section>
             <details className="advanced-panel">
               <summary>{t.advanced}</summary>
@@ -419,15 +418,12 @@ function PromptLanguageToggle({value,onChange,label = '프롬프트 보기 언�
     {promptLanguages.map(language => <button key={language} type="button" lang={language} aria-pressed={value === language} onClick={()=>onChange(language)}>{language === 'en' ? 'English' : language === 'ko' ? '한국어' : '日本語'}</button>)}
   </div>;
 }
-function Variation({item,index,agent,interpretation,sourcePrompt,selected,onSelect,uiLanguage = 'en'}) {
+function Variation({item,index,agent,interpretation,sourcePrompt,uiLanguage = 'en'}) {
   const [copied, setCopied] = useState(false);
   const [language, setLanguage] = useState('en');
   const promptView = getVariationPromptView(agent, interpretation, item.prompt, item.index ?? index, language, sourcePrompt);
-  const ready = item.status === 'complete' && item.url;
-  return <article className={'variation '+(selected?'selected':'')}>
-    <div className="image-wrap">{ready?<img src={item.url} alt={item.title}/>:<div className="placeholder"><ImageIcon size={24}/><span>{item.status === 'preview' ? (uiLanguage === 'ja' ? 'プロンプトプレビュー · 画像なし' : uiLanguage === 'ko' ? '프롬프트 미리보기 · 이미지 없음' : 'Prompt preview · No image') : item.status === 'generating' ? (uiLanguage === 'ja' ? '処理中…' : uiLanguage === 'ko' ? '처리 중…' : 'Processing…') : item.status === 'failed' ? (uiLanguage === 'ja' ? '生成停止' : uiLanguage === 'ko' ? '생성 중단' : 'Generation stopped') : 'Variation '+(index+1)}</span></div>}<Badge className="var-number" variant="secondary">0{index+1}</Badge></div>
-    <div className="var-meta"><strong>{item.title}</strong><span>{item.why}</span><Button variant={selected?'default':'outline'} size="sm" disabled={!ready} aria-pressed={selected} onClick={onSelect}>{selected ? (uiLanguage === 'ja' ? '選択済み' : uiLanguage === 'ko' ? '선택됨' : 'Selected') : (uiLanguage === 'ja' ? `案 ${index+1} を選択` : uiLanguage === 'ko' ? `시안 ${index+1} 선택` : 'Select variation '+(index+1))}</Button>
-    {ready && <Button asChild variant="ghost" size="sm"><a href={item.url} download={'matome-variation-'+(index+1)+'.png'}>Download</a></Button>}
+  return <article className="variation prompt-card">
+    <div className="var-meta"><div className="variation-heading"><Badge variant="secondary">0{index+1}</Badge><strong>{item.title}</strong></div><span>{item.why}</span>
     {item.prompt && <><details open={item.status === 'preview'}><summary>{uiLanguage === 'ja' ? '最終画像プロンプト' : uiLanguage === 'ko' ? '최종 이미지 프롬프트' : 'Final image prompt'}</summary><PromptLanguageToggle value={language} onChange={value=>{setLanguage(value);setCopied(false);}}/>{language !== 'en' && <p className="prompt-language-status" role="status">{promptView.status !== 'localized' ? '번역할 수 없는 수정본입니다. 원문을 표시합니다.' : language === 'ko' ? 'Agent 입력·직접 수정한 내용은 원문 유지' : 'Agentの入力・直接編集した内容は原文を保持'}</p>}<pre className="image-prompt" lang={promptView.status === 'localized' ? language : undefined}>{promptView.text}</pre></details><Button variant="ghost" size="sm" onClick={async()=>{try{await navigator.clipboard.writeText(promptView.text);setCopied(true);}catch{setCopied(false);}}}>{copied ? (uiLanguage === 'ja' ? 'コピー済み' : uiLanguage === 'ko' ? '복사됨' : 'Copied') : (uiLanguage === 'ja' ? '最終プロンプトをコピー' : uiLanguage === 'ko' ? '최종 프롬프트 복사' : 'Copy final prompt')}</Button></>}
     </div>
   </article>
