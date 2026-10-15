@@ -2,16 +2,16 @@ import { refs, styleDNA, conceptVariations, analyzeAgent, graphicStyleVersion } 
 export { analyzeAgent };
 
 export const variationPlans = [
-  { title: 'The observer', direction: 'Use a slight three-quarter close bust portrait or iconic non-human portrait. Express attention with minimal brows, dot/oval eyes, and one calm mouth mark. Let one distinctive styling cue or compact motif sit close to the face; no extra props.', why: 'A composed expression and one clear feature convey the agent’s curatorial role.' },
-  { title: 'The presenter', direction: 'Use a front-facing mature avatar crop with visible shoulders or a confident non-human equivalent. Place the single category cue as eyewear, headwear, headphones, collar detail, or one compact held object. Keep the silhouette clean and avoid a second symbol.', why: 'A clear editorial portrait makes the agent’s subject readable without mascot clutter.' },
-  { title: 'The enthusiast', direction: 'Use a subtle head tilt, asymmetrical hair or accessory silhouette, and a warm but not kawaii expression. Show enthusiasm through styling, posture, or one accent color rather than exaggerated sparkling eyes or prop piles.', why: 'Controlled expression keeps energy while preserving the mature V2 language.' },
-  { title: 'The living symbol', direction: 'If the Agent concept calls for it, make an animal, creature, or object-inspired character whose silhouette carries the category. Keep the form editorial, material-aware, and crop-safe, with simplified facial marks and no supporting prop inventory.', why: 'A symbolic character option preserves non-human flexibility inside the V2 system.' },
+  { title: 'Human-led', direction: 'Create a human-led mature bust avatar. Use the gender and age impression only if provided, and express the Agent through styling, hair, eyewear, clothing, expression, and at most one compact object motif. Do not turn this into a costume or mascot.', why: 'Tests whether the agent works best as a contemporary human profile character.' },
+  { title: 'Animal-inspired', direction: 'Create an animal-inspired avatar using the Animal motif if provided; otherwise choose one animal whose temperament fits the Agent. Keep it in the same mature editorial V2 language, with one styling cue or object motif only if needed. Avoid generic cute pet mascot energy.', why: 'Tests whether an animal metaphor makes the agent more memorable.' },
+  { title: 'Object-inspired', direction: 'Create an object-inspired character using the Object motif / key prop as the primary silhouette or head/body inspiration. The object should become the character language, not merely a held prop. Keep the face simple, the form crop-safe, and the styling mature.', why: 'Tests whether the key object can become the clearest profile identity.' },
+  { title: 'Best-fit editorial', direction: 'Choose the strongest form for the Agent from human, animal, or object-inspired. Prioritize semantic fit, avatar readability, and V2 editorial consistency over novelty. Use only one distinctive silhouette, styling cue, animal motif, or object motif.', why: 'Lets the model choose the most coherent direction after comparing the other form families.' },
 ];
 
 export function normalizeAgent(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Agent information is required.');
   const agent = {};
-  for (const field of ['name', 'description', 'keywords', 'purpose', 'role', 'concept', 'characterType', 'gender', 'age', 'colors', 'props', 'visualNotes', 'tone']) {
+  for (const field of ['name', 'description', 'keywords', 'purpose', 'role', 'concept', 'characterForm', 'characterType', 'gender', 'age', 'colors', 'animalMotif', 'objectMotif', 'props', 'visualNotes', 'tone']) {
     if (input[field] != null && typeof input[field] !== 'string') throw new Error(`${field} must be text.`);
     agent[field] = (input[field] || '').trim();
     if (agent[field].length > 4000) throw new Error(`${field} must be 4,000 characters or fewer.`);

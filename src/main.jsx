@@ -19,11 +19,12 @@ const agentExample = {
   description: '코미디를 좋아하는 사람들을 위해 코미디언의 근황부터 방송, 온라인 콘텐츠, 라이브 공연과 경연 소식까지 흥미로운 정보를 모아 소개합니다.',
   keywords: '코미디언 근황\n예능 출연\n코미디 공연\n스탠드업 코미디\n코미디 경연\n신인 코미디언',
   tone: '밝고 재치 있지만 지나치게 가볍지 않은 분위기. 친근한 말투로 핵심을 명확하게 전달',
-  characterType: 'auto or human / animal / creature / object-inspired',
+  characterForm: 'auto or human / animal / object',
   gender: 'no preference or female / male / neutral',
   age: 'adult, young adult, middle-aged, or not applicable',
   colors: 'black, ivory, and mint accent',
-  props: 'one compact microphone or editorial glasses',
+  animalMotif: 'fox, owl, cat, dog, hamster, or leave empty',
+  objectMotif: 'one compact microphone or editorial glasses',
   visualNotes: 'Mature presenter with refined glasses. Keep the microphone compact; avoid a toy-like or childish look.',
 };
 const imageGeneratorGptUrl = 'https://chatgpt.com/g/g-6abe2a02f49481b89c07d3291865ca3b-ai-agent-image-generator';
@@ -32,7 +33,8 @@ const directionTranslations = {
   ko: {
     'auto': '자동 선택',
     'human': '사람형',
-    'object-inspired': '사물 기반 캐릭터',
+    'animal': '동물형',
+    'object': '사물형',
     'no preference': '선호 없음',
     'not applicable': '해당 없음',
     'adult or young adult': '성인 또는 젊은 성인',
@@ -40,12 +42,18 @@ const directionTranslations = {
     'black, denim, soft neutrals, and one vivid accent': '블랙, 데님, 부드러운 뉴트럴 톤과 선명한 포인트 색 하나',
     'clean neutrals with blue or mint accent': '깔끔한 뉴트럴 톤과 블루 또는 민트 포인트',
     'balanced contemporary colors with one signature accent': '균형 잡힌 현대적 컬러와 시그니처 포인트 색 하나',
-    'one compact microphone or presenter cue': '작은 마이크 하나 또는 진행자 느낌의 단서',
-    'editorial glasses, headset, or one compact bulletin object': '에디토리얼 안경, 헤드셋 또는 작은 소식 오브젝트 하나',
-    'headphones or one clean fan-culture accent': '헤드폰 또는 깔끔한 팬 문화 포인트 하나',
-    'one category-defining ball or sporty headwear cue': '카테고리를 보여주는 공 또는 스포티한 헤드웨어 단서 하나',
-    'one simplified food-shaped motif integrated into the character': '캐릭터에 통합된 단순한 음식 형태 모티프 하나',
+    'compact microphone': '작은 마이크',
+    'editorial glasses, headset, or compact bulletin object': '에디토리얼 안경, 헤드셋 또는 작은 소식 오브젝트',
+    'headphones or clean fan-culture accent': '헤드폰 또는 깔끔한 팬 문화 포인트',
+    'category-defining ball or sporty headwear cue': '카테고리를 보여주는 공 또는 스포티한 헤드웨어 단서',
+    'simplified signature food shape': '단순화한 대표 음식 형태',
     'one distinctive category cue only if needed': '필요할 때만 카테고리를 보여주는 특징 하나',
+    'fox or meerkat if an animal version is useful': '동물형이 어울리면 여우 또는 미어캣',
+    'owl if an animal version is useful': '동물형이 어울리면 올빼미',
+    'cat if an animal version is useful': '동물형이 어울리면 고양이',
+    'hawk or dog if an animal version is useful': '동물형이 어울리면 매 또는 강아지',
+    'hamster or bear if an animal version is useful': '동물형이 어울리면 햄스터 또는 곰',
+    'leave empty unless a clear animal metaphor emerges': '명확한 동물 비유가 없으면 비워두기',
     'A confident adult comedy curator with refined glasses and a subtle presenter-like expression.': '세련된 안경과 은근한 진행자 표정을 가진 자신감 있는 성인 코미디 큐레이터.',
     'A focused adult curator with clean eyewear, neat hair, and a calm editorial presence.': '깔끔한 안경, 단정한 머리, 차분한 에디토리얼 인상을 가진 집중력 있는 성인 큐레이터.',
     'A contemporary music editor with headphones, relaxed confidence, and one vivid accent color.': '헤드폰, 여유 있는 자신감, 선명한 포인트 색 하나를 가진 현대적인 음악 에디터.',
@@ -56,7 +64,8 @@ const directionTranslations = {
   ja: {
     'auto': '自動選択',
     'human': '人型',
-    'object-inspired': '物体ベースのキャラクター',
+    'animal': '動物型',
+    'object': '物体型',
     'no preference': '指定なし',
     'not applicable': '該当なし',
     'adult or young adult': '大人または若い大人',
@@ -64,12 +73,18 @@ const directionTranslations = {
     'black, denim, soft neutrals, and one vivid accent': 'ブラック、デニム、柔らかなニュートラル、鮮やかなアクセントを一つ',
     'clean neutrals with blue or mint accent': 'クリーンなニュートラルにブルーまたはミントのアクセント',
     'balanced contemporary colors with one signature accent': 'バランスのよい現代的な色とシグネチャーアクセントを一つ',
-    'one compact microphone or presenter cue': '小さなマイクまたはプレゼンターらしい要素を一つ',
-    'editorial glasses, headset, or one compact bulletin object': 'エディトリアルな眼鏡、ヘッドセット、または小さなニュースオブジェクトを一つ',
-    'headphones or one clean fan-culture accent': 'ヘッドホンまたはすっきりしたファン文化のアクセントを一つ',
-    'one category-defining ball or sporty headwear cue': 'カテゴリーを示すボールまたはスポーティな帽子の要素を一つ',
-    'one simplified food-shaped motif integrated into the character': 'キャラクターに統合された単純な食べ物形モチーフを一つ',
+    'compact microphone': '小さなマイク',
+    'editorial glasses, headset, or compact bulletin object': 'エディトリアルな眼鏡、ヘッドセット、または小さなニュースオブジェクト',
+    'headphones or clean fan-culture accent': 'ヘッドホンまたはすっきりしたファン文化のアクセント',
+    'category-defining ball or sporty headwear cue': 'カテゴリーを示すボールまたはスポーティな帽子の要素',
+    'simplified signature food shape': '単純化した代表的フード形状',
     'one distinctive category cue only if needed': '必要な場合のみカテゴリーを示す特徴を一つ',
+    'fox or meerkat if an animal version is useful': '動物型が有効ならキツネまたはミーアキャット',
+    'owl if an animal version is useful': '動物型が有効ならフクロウ',
+    'cat if an animal version is useful': '動物型が有効なら猫',
+    'hawk or dog if an animal version is useful': '動物型が有効ならタカまたは犬',
+    'hamster or bear if an animal version is useful': '動物型が有効ならハムスターまたは熊',
+    'leave empty unless a clear animal metaphor emerges': '明確な動物メタファーがなければ空欄',
     'A confident adult comedy curator with refined glasses and a subtle presenter-like expression.': '洗練された眼鏡と控えめなプレゼンターらしい表情を持つ、自信のある大人のコメディキュレーター。',
     'A focused adult curator with clean eyewear, neat hair, and a calm editorial presence.': 'すっきりした眼鏡、整った髪、落ち着いたエディトリアルな存在感を持つ集中した大人のキュレーター。',
     'A contemporary music editor with headphones, relaxed confidence, and one vivid accent color.': 'ヘッドホン、自然な自信、鮮やかなアクセントカラーを一つ持つ現代的な音楽エディター。',
@@ -86,27 +101,30 @@ function localizeDirectionValue(value, language) {
 
 const directionPlaceholders = {
   ko: {
-    characterType: '자동 선택 또는 사람형 / 동물형 / 생물형 / 사물 기반',
+    characterForm: '자동 선택 또는 사람형 / 동물형 / 사물형',
     gender: '선호 없음 또는 여성 / 남성 / 중성',
     age: '성인, 젊은 성인, 중년, 또는 해당 없음',
     colors: '블랙, 아이보리, 민트 포인트',
-    props: '작은 마이크 하나 또는 에디토리얼 안경',
+    animalMotif: '여우, 올빼미, 고양이, 강아지, 햄스터 또는 비워두기',
+    objectMotif: '작은 마이크 하나 또는 에디토리얼 안경',
     visualNotes: '세련된 안경을 쓴 성숙한 진행자. 마이크는 작게, 장난감 같거나 유치한 느낌은 피하기.',
   },
   ja: {
-    characterType: '自動選択、または人型 / 動物型 / クリーチャー / 物体ベース',
+    characterForm: '自動選択、または人型 / 動物型 / 物体型',
     gender: '指定なし、または女性 / 男性 / ニュートラル',
     age: '大人、若い大人、中年、または該当なし',
     colors: 'ブラック、アイボリー、ミントのアクセント',
-    props: '小さなマイクまたはエディトリアルな眼鏡',
+    animalMotif: 'キツネ、フクロウ、猫、犬、ハムスター、または空欄',
+    objectMotif: '小さなマイクまたはエディトリアルな眼鏡',
     visualNotes: '洗練された眼鏡の成熟したプレゼンター。マイクは小さく、玩具風や子どもっぽさは避ける。',
   },
   en: {
-    characterType: agentExample.characterType,
+    characterForm: agentExample.characterForm,
     gender: agentExample.gender,
     age: agentExample.age,
     colors: agentExample.colors,
-    props: agentExample.props,
+    animalMotif: agentExample.animalMotif,
+    objectMotif: agentExample.objectMotif,
     visualNotes: agentExample.visualNotes,
   },
 };
@@ -121,7 +139,7 @@ const uiText = {
     heading: 'Agent Profile Generator', briefTitle: 'Agent 기본 정보', briefDesc: '기본 정보를 입력하면 캐릭터 방향은 자동 해석됩니다.',
     name: 'Agent name', description: 'Description', keywords: 'Keywords', tone: 'Tone',
     directionTitle: 'AI가 해석한 캐릭터 방향', directionDesc: '자동으로 채워진 값입니다. 원하는 이미지가 있으면 직접 수정하세요.',
-    characterType: 'Character type', gender: 'Gender', age: 'Age impression', colors: 'Preferred colors', props: 'Props', visualNotes: 'Visual notes',
+    characterForm: 'Character form', gender: 'Gender', age: 'Age impression', colors: 'Preferred colors', animalMotif: 'Animal motif', objectMotif: 'Object motif / key prop', visualNotes: 'Visual notes',
     create: '4개 시안 프롬프트 만들기', generate: '4개 시안 생성', preparing: '준비 중', generating: '생성 중',
     results: '프로필 이미지 시안', refresh: '시안 새로 만들기', regenerate: '전체 재생성',
     send: '4개 프롬프트를 GPT로 보내기', sendReady: '전체 프롬프트를 복사하고 AI Agent Image Generator를 엽니다.', sendEmpty: '기본 정보를 입력하면 최종 GPT 배치가 준비됩니다.',
@@ -137,7 +155,7 @@ const uiText = {
     heading: 'Agent Profile Generator', briefTitle: 'Agent基本情報', briefDesc: '基本情報を入力すると、キャラクター方向は自動で解釈されます。',
     name: 'Agent name', description: 'Description', keywords: 'Keywords', tone: 'Tone',
     directionTitle: 'AIが解釈したキャラクター方向', directionDesc: '自動入力された値です。必要に応じて編集できます。',
-    characterType: 'Character type', gender: 'Gender', age: 'Age impression', colors: 'Preferred colors', props: 'Props', visualNotes: 'Visual notes',
+    characterForm: 'Character form', gender: 'Gender', age: 'Age impression', colors: 'Preferred colors', animalMotif: 'Animal motif', objectMotif: 'Object motif / key prop', visualNotes: 'Visual notes',
     create: '4案のプロンプトを作成', generate: '4案を生成', preparing: '準備中', generating: '生成中',
     results: 'プロフィール画像案', refresh: '案を更新', regenerate: 'すべて再生成',
     send: '4つのプロンプトをGPTへ送る', sendReady: '全プロンプトをコピーしてAI Agent Image Generatorを開きます。', sendEmpty: '基本情報を入力すると最終GPTバッチが準備されます。',
@@ -153,7 +171,7 @@ const uiText = {
     heading: 'Agent Profile Generator', briefTitle: 'Agent basics', briefDesc: 'Enter the basics first; character direction is interpreted automatically.',
     name: 'Agent name', description: 'Description', keywords: 'Keywords', tone: 'Tone',
     directionTitle: 'AI-interpreted character direction', directionDesc: 'These values are auto-filled. Edit them when you have a clearer character in mind.',
-    characterType: 'Character type', gender: 'Gender', age: 'Age impression', colors: 'Preferred colors', props: 'Props', visualNotes: 'Visual notes',
+    characterForm: 'Character form', gender: 'Gender', age: 'Age impression', colors: 'Preferred colors', animalMotif: 'Animal motif', objectMotif: 'Object motif / key prop', visualNotes: 'Visual notes',
     create: 'Create 4 variation prompts', generate: 'Generate 4 variations', preparing: 'Preparing', generating: 'Generating',
     results: 'Profile image variations', refresh: 'Refresh previews', regenerate: 'Regenerate all',
     send: 'Send all 4 prompts to GPT', sendReady: 'Copy the full batch and open the AI Agent Image Generator.', sendEmpty: 'Enter the basics first to prepare the final GPT batch.',
@@ -167,7 +185,7 @@ const uiText = {
 };
 
 function App() {
-  const [agent, setAgent] = useState({ name: '', description: '', purpose: '', characterType: '', gender: '', age: '', colors: '', props: '', visualNotes: '', tone: '', keywords: '' });
+  const [agent, setAgent] = useState({ name: '', description: '', purpose: '', characterForm: '', gender: '', age: '', colors: '', animalMotif: '', objectMotif: '', visualNotes: '', tone: '', keywords: '' });
   const [uiLanguage, setUiLanguage] = useState('ko');
   const [tab, setTab] = useState('generator');
   const [reading, setReading] = useState(null);
@@ -254,7 +272,7 @@ function App() {
     const hasBasics = next.name.trim() && next.description.trim() && next.keywords.trim() && next.tone.trim();
     if (hasBasics) {
       const derived = deriveCharacterDirection(next);
-      for (const field of ['characterType', 'gender', 'age', 'colors', 'props', 'visualNotes']) {
+      for (const field of ['characterForm', 'gender', 'age', 'colors', 'animalMotif', 'objectMotif', 'visualNotes']) {
         if (!next[field]) next[field] = derived[field];
       }
     }
@@ -381,14 +399,15 @@ function App() {
             <section className="interpretation image-interpretation">
               <SectionHeading step="02" title={t.interpretation} description={t.interpretationDesc} action={<Button type="button" variant="outline" size="sm" disabled={!basicComplete} onClick={refreshCharacterDirection}>{uiLanguage === 'ja' ? '再解釈' : uiLanguage === 'en' ? 'Reinterpret' : '다시 해석'}</Button>}/>
               <div className="two-col">
-                <DirectionField label={t.characterType} value={agent.characterType} placeholder={getDirectionPlaceholder('characterType', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('characterType',v)}/>
+                <DirectionField label={t.characterForm} value={agent.characterForm} placeholder={getDirectionPlaceholder('characterForm', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('characterForm',v)}/>
                 <DirectionField label={t.gender} value={agent.gender} placeholder={getDirectionPlaceholder('gender', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('gender',v)}/>
               </div>
               <div className="two-col">
                 <DirectionField label={t.age} value={agent.age} placeholder={getDirectionPlaceholder('age', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('age',v)}/>
                 <DirectionField label={t.colors} value={agent.colors} placeholder={getDirectionPlaceholder('colors', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('colors',v)}/>
               </div>
-              <DirectionField label={t.props} value={agent.props} placeholder={getDirectionPlaceholder('props', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('props',v)}/>
+              <DirectionField label={t.animalMotif} value={agent.animalMotif} placeholder={getDirectionPlaceholder('animalMotif', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('animalMotif',v)}/>
+              <DirectionField label={t.objectMotif} value={agent.objectMotif} placeholder={getDirectionPlaceholder('objectMotif', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('objectMotif',v)}/>
               <DirectionField label={t.visualNotes} value={agent.visualNotes} placeholder={getDirectionPlaceholder('visualNotes', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('visualNotes',v)} area/>
               {reading ? <>
                 <PromptLanguageToggle value={interpretationLanguage} onChange={setInterpretationLanguage} label="Agent 해석 보기 언어"/>

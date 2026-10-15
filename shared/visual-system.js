@@ -69,10 +69,10 @@ export function analyzeAgent(agent) {
     coreRole: agent.purpose || agent.role || (isNews ? 'A selective curator who makes fast-moving updates feel clear and approachable' : 'A focused guide who turns a niche into a recognizable daily briefing'),
     personality: agent.tone || 'Warm, contemporary, curious, and lightly expressive without becoming childish',
     visualMotif: [agent.visualNotes || agent.concept, motif].filter(Boolean).join(': ') || motif,
-    primaryObject: agent.props || agent.visualNotes || (isComedy ? 'compact microphone or confident presenter accessory' : isNews ? 'one compact bulletin object or editorial eyewear/headwear cue' : 'category-defining styling cue or hero motif'),
+    primaryObject: agent.objectMotif || agent.props || agent.visualNotes || (isComedy ? 'compact microphone or confident presenter accessory' : isNews ? 'one compact bulletin object or editorial eyewear/headwear cue' : 'category-defining styling cue or hero motif'),
     secondaryObjects: 'none by default; at most one small supporting prop if essential to the category',
     mood: isComedy ? 'witty, confident, energetic, modern' : 'approachable, focused, contemporary, optimistic',
-    composition: `${agent.characterType ? `${agent.characterType} character direction; ` : ''}${agent.gender ? `${agent.gender} gender impression; ` : ''}${agent.age ? `${agent.age} age impression; ` : ''}Mature close bust portrait or iconic non-human avatar in the V2 editorial 3D style; visible neck/shoulders when relevant, one distinctive feature, minimal facial marks, and a circular-crop-safe silhouette`,
+    composition: `${agent.characterForm || agent.characterType ? `${agent.characterForm || agent.characterType} character form; ` : ''}${agent.animalMotif ? `${agent.animalMotif} animal motif; ` : ''}${agent.objectMotif || agent.props ? `${agent.objectMotif || agent.props} object motif; ` : ''}${agent.gender ? `${agent.gender} gender impression; ` : ''}${agent.age ? `${agent.age} age impression; ` : ''}Mature close bust portrait or iconic non-human avatar in the V2 editorial 3D style; visible neck/shoulders when relevant, one distinctive feature, minimal facial marks, and a circular-crop-safe silhouette`,
     color: agent.colors || (isComedy ? 'warm grounded neutrals with one bright accent' : 'balanced contemporary palette with natural tones plus one controlled signature accent'),
     balance: isComedy ? 'Character-led, with one compact cue supporting the expression' : 'Balanced avatar identity and one symbolic feature'
   };
@@ -85,8 +85,9 @@ export function deriveCharacterDirection(agent) {
   const isMusic = /music|song|chart|idol|k-pop|kpop|음악|아이돌|노래|チャート|音楽/.test(text);
   const isFood = /food|맛집|음식|먹방|グルメ|食|コンビニ/.test(text);
   const isSport = /sport|sports|축구|야구|골프|soccer|baseball|golf|スポーツ|野球|サッカー|ゴルフ/.test(text);
-  const characterType = isFood || isSport ? 'object-inspired' : isMusic || isComedy || isNews ? 'human' : 'auto';
-  const props = isComedy ? 'one compact microphone or presenter cue' : isNews ? 'editorial glasses, headset, or one compact bulletin object' : isMusic ? 'headphones or one clean fan-culture accent' : isSport ? 'one category-defining ball or sporty headwear cue' : isFood ? 'one simplified food-shaped motif integrated into the character' : 'one distinctive category cue only if needed';
+  const characterForm = isFood || isSport ? 'object' : isMusic || isComedy || isNews ? 'human' : 'auto';
+  const animalMotif = isComedy ? 'fox or meerkat if an animal version is useful' : isNews ? 'owl if an animal version is useful' : isMusic ? 'cat if an animal version is useful' : isSport ? 'hawk or dog if an animal version is useful' : isFood ? 'hamster or bear if an animal version is useful' : 'leave empty unless a clear animal metaphor emerges';
+  const objectMotif = isComedy ? 'compact microphone' : isNews ? 'editorial glasses, headset, or compact bulletin object' : isMusic ? 'headphones or clean fan-culture accent' : isSport ? 'category-defining ball or sporty headwear cue' : isFood ? 'simplified signature food shape' : 'one distinctive category cue only if needed';
   const visualNotes = isComedy
     ? 'A confident adult comedy curator with refined glasses and a subtle presenter-like expression.'
     : isNews
@@ -99,11 +100,12 @@ export function deriveCharacterDirection(agent) {
             ? 'A friendly food culture guide built around one simple signature food shape.'
             : 'A clear character look that expresses the agent topic through one distinctive silhouette or styling cue.';
   return {
-    characterType,
+    characterForm,
     gender: 'no preference',
-    age: characterType === 'human' ? 'adult or young adult' : 'not applicable',
+    age: characterForm === 'human' ? 'adult or young adult' : 'not applicable',
     colors: isComedy ? 'warm neutrals with one bright accent' : isMusic ? 'black, denim, soft neutrals, and one vivid accent' : isNews ? 'clean neutrals with blue or mint accent' : 'balanced contemporary colors with one signature accent',
-    props,
+    animalMotif,
+    objectMotif,
     visualNotes,
   };
 }
