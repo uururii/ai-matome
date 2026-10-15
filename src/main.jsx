@@ -367,7 +367,6 @@ function App() {
               <Field label={t.description} required placeholder={agentExample.description} value={agent.description} onChange={v=>updateWithAutoDirection('description',v)} area/>
               <Field label={t.keywords} required placeholder={agentExample.keywords} value={agent.keywords} onChange={v=>updateWithAutoDirection('keywords',v)} area/>
               <Field label={t.tone} required placeholder={agentExample.tone} value={agent.tone} onChange={v=>updateWithAutoDirection('tone',v)} area/>
-              <Button type="submit" className="full" disabled={!canPrepare}>{busy ? `${previewMode ? t.preparing : t.generating} ${completed}/4` : previewMode ? t.create : t.generate}</Button>
             </fieldset></form>
             <section className="interpretation image-interpretation">
               <SectionHeading step="02" title={t.interpretation} description={t.interpretationDesc} action={<Button type="button" variant="outline" size="sm" disabled={!basicComplete} onClick={refreshCharacterDirection}>{uiLanguage === 'ja' ? '再解釈' : uiLanguage === 'en' ? 'Reinterpret' : '다시 해석'}</Button>}/>
@@ -391,6 +390,7 @@ function App() {
                 {interpretationLanguage !== 'en' && <p className="prompt-language-status">{interpretationLanguage === 'ko' ? '직접 입력한 내용은 원문 유지' : '直接入力した内容は原文を保持'}</p>}
               </> : <p className="empty-state compact" role="status">{uiLanguage === 'ja' ? '基本情報を入力すると画像解釈が表示されます。' : uiLanguage === 'en' ? 'Enter the basics to preview the image interpretation.' : '기본 정보를 입력하면 이미지 해석이 표시됩니다.'}</p>}
             </section>
+            <Button type="button" className="full" disabled={!canPrepare} onClick={prepareVariations}>{busy ? `${previewMode ? t.preparing : t.generating} ${completed}/4` : previewMode ? t.create : t.generate}</Button>
           </section>
           <div className="right-column">
             <section className="results">
