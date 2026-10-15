@@ -10,6 +10,7 @@ import { Badge } from './components/ui/badge';
 import './hub-theme.css';
 
 import { refs, styleDNA, conceptVariations, graphicStyleVersion, deriveCharacterDirection } from '../shared/visual-system.js';
+import { refs as legacyRefs, styleDNA as legacyStyleDNA, conceptVariations as legacyConceptVariations } from '../shared/visual-system-v1.js';
 import { analyzeAgent, buildImagePrompt, normalizeAgent, normalizeInterpretation, interpretationsMatch } from '../shared/generation.js';
 import { getPromptView, getVariationPromptView, getInterpretationView, promptLanguages } from '../shared/prompt-translation.js';
 import { generateProfileImages, getGenerationStatus, getGeneration, resumeGeneration } from '@generation-client';
@@ -448,7 +449,7 @@ function App() {
           </div>
         </div>
         <div className="notice" role="status">{notice}</div>
-      </main> : <Library refs={refs} uiLanguage={uiLanguage}/>}
+      </main> : <Library refs={refs} legacyRefs={legacyRefs} uiLanguage={uiLanguage}/>}
     </div>
   </div>
 }
@@ -487,13 +488,87 @@ function Variation({item,index,agent,interpretation,sourcePrompt,uiLanguage = 'e
     </div>
   </article>
 }
-function Library({refs, uiLanguage = 'en'}) {
+function Library({refs, legacyRefs, uiLanguage = 'en'}) {
   const libraryTitle = uiLanguage === 'ja' ? 'リファレンスライブラリ' : uiLanguage === 'ko' ? '레퍼런스 라이브러리' : 'Reference library';
-  return <main className="main library-page"><div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>{libraryTitle}</h1></div><Badge variant="outline">{graphicStyleVersion} · {refs.length} references</Badge></div>
-    <section className="dna-section"><SectionHeading title="Global Style DNA"/><div className="dna-grid">{Object.entries(styleDNA).map(([label,value])=><Info key={label} label={label} value={value}/>)}</div></section>
-    <section className="dna-section"><SectionHeading title="Agent Concept Variations"/><div className="dna-grid">{Object.entries(conceptVariations).map(([label,value])=><Info key={label} label={label} value={value}/>)}</div></section>
-    <SectionHeading title="Agent references"/>
-    <div className="matrix">{refs.map(r=><article className="ref-card" key={r[0]}><img src={'/references/'+r[1]} alt={r[0]}/><div><strong>{r[0]}</strong><span>{r[2]}</span></div></article>)}</div>
+  const copy = {
+    ko: {
+      current: '현재 기본 스타일',
+      legacy: '레거시 보존 스타일',
+      dna: 'Graphic Style Guide',
+      variations: 'Visual System Notes',
+      references: 'Reference Images',
+      v2Desc: '성숙하고 현대적인 editorial 3D avatar 시스템입니다. 현재 Generator의 기본 스타일로 사용됩니다.',
+      v1Desc: '장난감 같은 귀여운 3D mascot 시스템입니다. 히스토리 확인과 비교를 위해 보존됩니다.',
+    },
+    ja: {
+      current: '現在の既定スタイル',
+      legacy: 'レガシー保存スタイル',
+      dna: 'Graphic Style Guide',
+      variations: 'Visual System Notes',
+      references: 'Reference Images',
+      v2Desc: '成熟した現代的なeditorial 3D avatarシステムです。現在のGeneratorの既定スタイルです。',
+      v1Desc: '玩具的でかわいい3D mascotシステムです。履歴確認と比較のために保存されています。',
+    },
+    en: {
+      current: 'Current default style',
+      legacy: 'Legacy preserved style',
+      dna: 'Graphic Style Guide',
+      variations: 'Visual System Notes',
+      references: 'Reference Images',
+      v2Desc: 'A mature contemporary editorial 3D avatar system. This is the Generator default.',
+      v1Desc: 'A playful toy-like cute 3D mascot system, preserved for history and comparison.',
+    },
+  }[uiLanguage] || {};
+  return <main className="main library-page"><div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>{libraryTitle}</h1></div><Badge variant="outline">V1 / V2</Badge></div>
+    <StyleLibrarySection
+      version="V2"
+      status={copy.current}
+      description={copy.v2Desc}
+      refs={refs}
+      style={styleDNA}
+      variations={conceptVariations}
+      basePath="/references/"
+      headings={copy}
+      current
+    />
+    <StyleLibrarySection
+      version="V1"
+      status={copy.legacy}
+      description={copy.v1Desc}
+      refs={legacyRefs}
+      style={legacyStyleDNA}
+      variations={legacyConceptVariations}
+      basePath="/references/v1/"
+      headings={copy}
+    />
   </main>
+}
+
+function StyleLibrarySection({version, status, description, refs, style, variations, basePath, headings, current = false}) {
+  return <section className={'style-library-section '+(current ? 'current' : 'legacy')}>
+    <div className="style-library-head">
+      <div>
+        <div className="eyebrow">{version}</div>
+        <h2>{version === 'V2' ? 'V2 Graphic Style' : 'V1 Graphic Style'}</h2>
+        <p>{description}</p>
+      </div>
+      <div className="style-library-badges">
+        <Badge variant={current ? 'secondary' : 'outline'}>{status}</Badge>
+        <Badge variant="outline">{refs.length} references</Badge>
+      </div>
+    </div>
+    <details className="library-subsection" open>
+      <summary>{headings.dna}</summary>
+      <div className="dna-grid">{Object.entries(style).map(([label,value])=><Info key={label} label={label} value={value}/>)}</div>
+    </details>
+    <details className="library-subsection" open>
+      <summary>{headings.variations}</summary>
+      <div className="dna-grid">{Object.entries(variations).map(([label,value])=><Info key={label} label={label} value={value}/>)}</div>
+    </details>
+    <details className="library-subsection" open>
+      <summary>{headings.references}</summary>
+      <div className="matrix">{refs.map(r=><article className="ref-card" key={`${version}-${r[0]}`}><img src={basePath+r[1]} alt={r[0]}/><div><strong>{r[0]}</strong><span>{r[2]}</span></div></article>)}</div>
+    </details>
+  </section>;
 }
 createRoot(document.getElementById('root')).render(<App/>);
