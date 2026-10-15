@@ -24,13 +24,14 @@ export function createJobService({ config, provider, referenceLoader = () => bui
     try {
       await mkdir(join(config.outputDir, job.id), { recursive: true });
       const references = await referenceLoader();
+      job.referenceCount = references.count || job.referenceCount || 0;
       const forbidden = new Set([...references.hashes, hashImage(references.buffer), ...job.images.filter(i => i.hash).map(i => i.hash)]);
       for (const image of job.images) {
         if (['complete', 'preview'].includes(image.status)) continue;
         current = image;
         image.status = 'generating';
         await persist(job);
-        const result = await provider.generate({ prompt: image.prompt, referenceSheet: references.buffer, referenceCount: references.count || 17, agent: job.agent, interpretation: job.interpretation, variation: { index: image.index, title: image.title, why: image.why } });
+        const result = await provider.generate({ prompt: image.prompt, referenceSheet: references.buffer, referenceCount: references.count || 0, agent: job.agent, interpretation: job.interpretation, variation: { index: image.index, title: image.title, why: image.why } });
         if (result.kind === 'preview' && job.mode === 'preview') {
           image.status = 'preview';
           await persist(job);
@@ -72,7 +73,7 @@ export function createJobService({ config, provider, referenceLoader = () => bui
       const interpretation = normalizeInterpretation(input.interpretation, agent);
       const job = {
         id: randomUUID(), requestId: input.requestId, createdAt: new Date().toISOString(), status: 'running', error: null,
-        agent, interpretation, sourcePrompt: input.prompt || '', provider: config.provider || 'mock', mode: getProviderStatus(provider).mode, model: getProviderStatus(provider).model, referenceCount: 17,
+        agent, interpretation, sourcePrompt: input.prompt || '', provider: config.provider || 'mock', mode: getProviderStatus(provider).mode, model: getProviderStatus(provider).model, referenceCount: 0,
         images: variationPlans.map((plan, index) => ({ index, title: plan.title, why: plan.why, status: 'pending', url: null, prompt: buildVariationPrompt(agent, interpretation, input.prompt || '', index) })),
       };
       // Bound memory while retaining all completed images and manifests on disk.

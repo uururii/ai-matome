@@ -32,9 +32,9 @@ test('mock runs all four final prompts without any keys or network', async t => 
     assert.equal(image.status, 'preview');
     assert.equal(image.url, null);
     for (const value of Object.values(agent)) assert.ok(image.prompt.includes(value));
-    assert.ok(image.prompt.includes('Simple stylized 3D mascot/avatar'));
-    assert.ok(image.prompt.includes('Anime-style character beauty'));
-    assert.ok(image.prompt.includes('OBSERVED CONCEPT VARIATIONS'));
+    assert.ok(image.prompt.includes('Contemporary stylized 3D editorial avatar system'));
+    assert.ok(image.prompt.includes('generic cute mascot'));
+    assert.ok(image.prompt.includes('OBSERVED V2 CONCEPT VARIATIONS'));
   }
   assert.equal(networkCalls, 0);
   assert.deepEqual(await readdir(join(outputDir, job.id)), ['manifest.json']);

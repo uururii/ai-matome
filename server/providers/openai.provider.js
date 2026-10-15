@@ -21,7 +21,7 @@ export function createProvider({ env = {}, timeoutMs = 240_000, fetchImpl = fetc
       body.set('size', '1024x1024');
       body.set('quality', config.quality);
       body.set('output_format', 'png');
-      body.append('image[]', new Blob([referenceSheet], { type: 'image/png' }), 'matome-17-style-references.png');
+      body.append('image[]', new Blob([referenceSheet], { type: 'image/png' }), 'matome-v2-style-references.png');
       let response;
       try {
         response = await fetchImpl('https://api.openai.com/v1/images/edits', {

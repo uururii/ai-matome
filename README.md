@@ -8,7 +8,7 @@ Local React/Vite tool with a Node.js image generation server. Node.js 22.15+ is 
 
 Run `npm run build:public` to create `dist-public/`, a standalone static site.
 It includes agent analysis, editable interpretation, language views, four prompt
-variations, copying, and the existing 17-image reference library. Anyone with the
+variations, copying, and the current V2 reference library. Anyone with the
 public URL can use it without signing in. The library images and bundled style
 rules are public as well; this is not an access-controlled site.
 
@@ -71,7 +71,7 @@ export function createProvider({ env, timeoutMs, fetchImpl }) {
     },
     async generate({ prompt, referenceSheet, referenceCount, agent, interpretation, variation }) {
       // Use fetchImpl to implement the confirmed service's auth and payload schema.
-      // referenceSheet is a PNG Buffer with all 17 references; do not omit it.
+      // referenceSheet is a PNG Buffer with all current-style references; do not omit it.
       // Normalize the service response to a PNG Buffer before returning:
       // return { kind: 'image', image: pngBuffer, revisedPrompt: null };
       throw new Error('Implement the confirmed API contract here.');
@@ -84,9 +84,9 @@ export function createProvider({ env, timeoutMs, fetchImpl }) {
 
 ## Generation flow
 
-- `shared/visual-system.js`: visual style and 17-agent reference catalog; local rule-based agent analysis. No text-model API required.
+- `shared/visual-system.js`: V2 current/default visual style and reference catalog; local rule-based agent analysis. No text-model API required. V1 legacy rules are preserved in `shared/visual-system-v1.js`.
 - `shared/generation.js`: all six agent inputs + analyzed concept + fixed style guide + reference directions + four distinct composition plans. Editing the prompt adds creative direction but never removes fixed style requirements.
-- `server/references.js`: reads all 17 originals and creates one contact sheet in memory. Originals are never changed. All 17 references are sent as image content, not returned as generated results.
+- `server/references.js`: reads the current reference catalog and creates one contact sheet in memory. Originals are never changed. References are sent as image content, not returned as generated results.
 - `server/providers/image-provider.js`: provider interface, dynamic loader, public status validation and common errors; no OpenAI-specific logic.
 - `server/providers/mock.provider.js`: offline analysis and prompt preview results, no API key.
 - `server/providers/internal.provider.js`: one-file integration point awaiting the internal API specification.

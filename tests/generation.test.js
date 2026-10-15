@@ -8,7 +8,7 @@ import { analyzeAgent, buildImagePrompt, buildVariationPrompt, normalizeAgent, n
 import { buildReferenceSheet, hashImage } from '../server/references.js';
 import { createImageProvider, ImageProviderError, parseRetryAfter } from '../server/providers/image-provider.js';
 import { createJobService } from '../server/jobs.js';
-import { refs, styleDNA, conceptVariations } from '../shared/visual-system.js';
+import { refs, legacyRefs, styleDNA, conceptVariations, graphicStyleVersion, legacyGraphicStyleVersion } from '../shared/visual-system.js';
 
 const agent = { name: 'Comedy curator', description: 'Tracks live comedy and award shows', keywords: 'comedy, live, awards', role: 'Culture observer', concept: 'A witty information hub', tone: 'Playful and analytical' };
 const png = color => sharp({ create: { width: 8, height: 8, channels: 3, background: color } }).png().toBuffer();
@@ -54,33 +54,40 @@ test('prompts preserve every input and fixed constraints with four distinct dire
   for (const prompt of prompts) {
     for (const value of Object.values(agent)) assert.ok(prompt.includes(value));
     assert.ok(prompt.includes(interpretation.visualMotif));
+    assert.ok(prompt.includes('GPT IMAGE MODEL INSTRUCTIONS'));
+    assert.ok(prompt.includes('They may define who the Agent is'));
+    assert.ok(prompt.includes('Select the character structure from the Agent concept'));
     assert.ok(prompt.includes('FIXED STYLE LAYER'));
-    assert.ok(prompt.includes('all 17 existing agents'));
+    assert.ok(prompt.includes('V2 reference images'));
     assert.ok(prompt.includes('Add a ribbon prop'));
   }
-  assert.equal(buildVariationPrompt(agent, interpretation, base, 0).match(/^FIXED STYLE LAYER$/gm).length, 1);
+  assert.equal(buildVariationPrompt(agent, interpretation, base, 0).match(/^FIXED STYLE LAYER - V2 CURRENT \/ DEFAULT$/gm).length, 1);
   assert.throws(() => normalizeAgent({ ...agent, name: '' }), /name is required/);
 });
 
-test('all 17 references are composed read-only', async () => {
+test('V2 references are composed read-only while V1 references remain available', async () => {
   const before = await Promise.all(refs.map(async ([, file]) => hashImage(await readFile(join('public/references', file)))));
   const sheet = await buildReferenceSheet('public/references');
-  assert.equal(sheet.count, 17);
+  assert.equal(graphicStyleVersion, 'V2');
+  assert.equal(legacyGraphicStyleVersion, 'V1');
+  assert.equal(sheet.count, 12);
+  assert.equal(legacyRefs.length, 17);
   assert.deepEqual(sheet.hashes, before);
   const metadata = await sharp(sheet.buffer).metadata();
   assert.equal(metadata.width, 1280);
-  assert.equal(metadata.height, 1024);
+  assert.equal(metadata.height, 768);
   const after = await Promise.all(refs.map(async ([, file]) => hashImage(await readFile(join('public/references', file)))));
   assert.deepEqual(after, before);
+  assert.ok((await readFile(join('public/references/v1', 'AI_Profile_Image_CinemaHunter.png'))).length > 0);
 });
 
 test('all variations keep the same reference-grounded fixed style, including edited prompts', () => {
   const interpretation = analyzeAgent(agent);
   const base = buildImagePrompt(agent, interpretation);
-  const fixedLayer = prompt => prompt.split('FIXED STYLE LAYER\n\n')[1].split('\n\nOBSERVED CONCEPT VARIATIONS')[0];
+  const fixedLayer = prompt => prompt.split('FIXED STYLE LAYER - V2 CURRENT / DEFAULT\n\n')[1].split('\n\nOBSERVED V2 CONCEPT VARIATIONS')[0];
   const fixed = fixedLayer(base);
   for (const text of Object.values(styleDNA)) assert.ok(fixed.includes(text));
-  for (const phrase of ['oversized head', 'very small and simple', 'Extremely simplified facial features', 'Smooth solid hair shapes', 'Simple pastel gradient', 'Soft studio lighting', 'Anime-style', 'Pixar-like', 'realistic human 3D render', 'excessive decorative props']) assert.ok(fixed.includes(phrase), phrase);
+  for (const phrase of ['V2 Current / Default', 'mature avatar proportions', 'Simplified face language', 'material diversity', 'Soft studio lighting', 'generic cute mascot', 'photorealistic human rendering', 'excessive props']) assert.ok(fixed.includes(phrase), phrase);
   for (const text of Object.values(conceptVariations)) assert.ok(!fixed.includes(text));
   assert.ok(!fixed.includes('clay-like'));
   assert.ok(!fixed.includes('70–85%'));
@@ -88,9 +95,9 @@ test('all variations keep the same reference-grounded fixed style, including edi
     const final = buildVariationPrompt(agent, interpretation, 'Old style: detailed hair, polished anime beauty and decorative props', i);
     assert.equal(fixedLayer(final), fixed);
     assert.ok(final.includes('the current fixed style and Avoid take priority'));
-    assert.ok(final.includes('subordinate to the FIXED STYLE LAYER and Avoid'));
+    assert.ok(final.includes('subordinate to the V2 FIXED STYLE LAYER and Avoid'));
   }
-  assert.ok(interpretation.secondaryObjects.includes('single small'));
+  assert.ok(interpretation.secondaryObjects.includes('small supporting prop'));
 });
 
 test('provider sends image bytes as a visual reference to edits, not generations', async () => {
@@ -173,7 +180,7 @@ test('edited interpretation survives provider requests, persistence and resume',
     assert.deepEqual(input.interpretation, expected);
     assert.ok(input.prompt.includes('primaryObject: Capsule toy'));
     assert.ok(input.prompt.includes('color: Mint and pink'));
-    assert.ok(input.prompt.includes('subordinate to the FIXED STYLE LAYER and Avoid'));
+    assert.ok(input.prompt.includes('subordinate to the V2 FIXED STYLE LAYER and Avoid'));
     if (calls === 2) throw new ImageProviderError('Temporary failure');
     return { image: await png(['red', 'white', 'green', 'blue', 'yellow'][calls - 1]) };
   } });

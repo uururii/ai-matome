@@ -9,7 +9,7 @@ import { Textarea } from './components/ui/textarea';
 import { Badge } from './components/ui/badge';
 import './hub-theme.css';
 
-import { refs, styleDNA, conceptVariations } from '../shared/visual-system.js';
+import { refs, styleDNA, conceptVariations, graphicStyleVersion } from '../shared/visual-system.js';
 import { analyzeAgent, buildImagePrompt, normalizeAgent, normalizeInterpretation, interpretationsMatch } from '../shared/generation.js';
 import { getPromptView, getVariationPromptView, getInterpretationView, promptLanguages } from '../shared/prompt-translation.js';
 import { generateProfileImages, getGenerationStatus, getGeneration, resumeGeneration } from '@generation-client';
@@ -22,6 +22,7 @@ const agentExample = {
   tone: '밝고 재치 있지만 지나치게 가볍지 않은 분위기. 친근한 말투로 핵심을 명확하게 전달',
   keywords: '코미디언 근황\n예능 출연\n코미디 공연\n스탠드업 코미디\n코미디 경연\n신인 코미디언',
 };
+const imageGeneratorGptUrl = 'https://chatgpt.com/g/g-6abe2a02f49481b89c07d3291865ca3b-ai-agent-image-generator';
 
 function App() {
   const [agent, setAgent] = useState({ name: '', description: '', role: '', concept: '', tone: '', keywords: '' });
@@ -54,6 +55,7 @@ function App() {
   const previousResults = job && reading && (!interpretationsMatch(job.interpretation, reading) || (job.sourcePrompt || buildImagePrompt(job.agent, job.interpretation)) !== prompt);
   const editedPrompt = reading && prompt !== buildImagePrompt(agent, reading);
   const variations = job?.images || [];
+  const hasVariationPrompts = variations.some(image => image.prompt);
   const completed = variations.filter(image => ['complete', 'preview'].includes(image.status)).length;
   const refreshConnection = async () => {
     try {
@@ -144,20 +146,45 @@ function App() {
     try { await navigator.clipboard.writeText(promptView.text); setNotice('Prompt copied'); }
     catch { setNotice('Copy unavailable. Select the prompt to copy it.'); }
   };
+  const copyVariationBatchPrompt = async ({ openGpt = false } = {}) => {
+    const readyPrompts = variations.filter(image => image.prompt).sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
+    const text = [
+      'Generate four separate V2 AI Matome profile image candidates from the following four prompts.',
+      '',
+      'Important:',
+      '- Create 4 separate square 1:1 images, not a collage or grid.',
+      '- Use each prompt independently.',
+      '- Keep the same V2 Graphic Style across all four.',
+      '- Label them Variation 1, Variation 2, Variation 3, and Variation 4.',
+      '- If image-generation limits prevent creating all four images in one response, generate as many as possible and clearly say which variations still need to be generated.',
+      '',
+      ...readyPrompts.flatMap((image, i) => [
+        `--- Variation ${i + 1}: ${image.title || `Variation ${i + 1}`} ---`,
+        image.prompt,
+        '',
+      ]),
+    ].join('\n');
+    try {
+      await navigator.clipboard.writeText(text.trim());
+      setNotice(openGpt ? '4 prompts copied. Paste them into the opened GPT window.' : '4 GPT image prompts copied as one batch');
+      if (openGpt) window.open(imageGeneratorGptUrl, '_blank', 'noopener,noreferrer');
+    }
+    catch { setNotice('Copy unavailable. Select each prompt to copy it.'); }
+  };
   return <div className={dark ? 'app-shell dark' : 'app-shell'}>
     <aside className="sidebar">
       <div className="brand"><div className="brand-mark"><Layers3 size={20}/></div><div><strong>AI Matome</strong><span>Creative tools</span></div></div>
       <div className="side-label">Workspace</div>
       <nav aria-label="Workspace">
         <Button variant="ghost" className={'nav-item '+(tab==='generator'?'active':'')} aria-current={tab==='generator'?'page':undefined} onClick={()=>setTab('generator')}><WandSparkles/> Profile generator</Button>
-        <Button variant="ghost" className={'nav-item '+(tab==='library'?'active':'')} aria-current={tab==='library'?'page':undefined} onClick={()=>setTab('library')}><LibraryBig/> Reference library <Badge variant="outline">17</Badge></Button>
+        <Button variant="ghost" className={'nav-item '+(tab==='library'?'active':'')} aria-current={tab==='library'?'page':undefined} onClick={()=>setTab('library')}><LibraryBig/> Reference library <Badge variant="outline">{refs.length}</Badge></Button>
       </nav>
-      <div className="side-foot"><div className="reference-stack">{refs.slice(0,3).map(r=><img key={r[0]} src={'/references/'+r[1]} alt={r[0]}/>)}</div><strong>Matome Visual System</strong><span>17 agent references</span><Badge variant="secondary">Hub Design System</Badge></div>
+      <div className="side-foot"><div className="reference-stack">{refs.slice(0,3).map(r=><img key={r[0]} src={'/references/'+r[1]} alt={r[0]}/>)}</div><strong>Matome Visual System</strong><span>{graphicStyleVersion} · {refs.length} references</span><Badge variant="secondary">Current Default</Badge></div>
     </aside>
     <div className="workspace">
       <header className="topbar"><div className="breadcrumb">Workspace <span>/</span> <strong>{tab==='generator'?'Profile generator':'Reference library'}</strong></div><div className="top-actions"><Badge variant="secondary">{connection?.configured ? (connection.provider === 'browser-preview' ? connection.label : previewMode ? "Mock preview" : connection.label) : "Setup required"}</Badge><Button variant="ghost" size="icon" aria-label={dark?'Light mode':'Dark mode'} title={dark?'Light mode':'Dark mode'} onClick={()=>setDark(!dark)}>{dark?<Sun/>:<Moon/>}</Button></div></header>
       {tab==='generator' ? <main className="main">
-        <div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>Agent Profile Generator</h1></div><Badge variant="outline"><Layers3/> 17 references</Badge></div>
+        <div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>Agent Profile Generator</h1></div><Badge variant="outline"><Layers3/> {graphicStyleVersion} · {refs.length} references</Badge></div>
         {connection?.provider !== 'browser-preview' && <div className="connection-bar" role="status"><span>{connection?.message || 'Connecting to the local generation service…'}</span><Button variant="ghost" size="sm" onClick={refreshConnection} disabled={busy}>Check connection</Button></div>}
         {error && <div className="generation-error" role="alert">{error}</div>}
         {remainingWait > 0 && <p className="demo-note" role="status">Retry available in {remainingWait}s. No automatic API retry will be sent.</p>}
@@ -198,6 +225,10 @@ function App() {
         </div>
         <section className="results">
           <SectionHeading step="04" title="Profile image variations" action={<Button variant="outline" size="sm" disabled={!canGenerate || !job} onClick={()=>generate()}>{previewMode ? "Refresh previews" : "Regenerate all"}</Button>}/>
+          <div className="gpt-export-bar">
+            <div><strong>Send all 4 prompts to GPT</strong><span>{hasVariationPrompts ? 'Copy the full batch and open the AI Agent Image Generator.' : 'Run Preview 4 variations first to create the four final prompts.'}</span></div>
+            <Button disabled={!hasVariationPrompts} onClick={()=>copyVariationBatchPrompt({ openGpt: true })}><Copy/> Copy & open GPT</Button>
+          </div>
           <div className="generation-summary" role="status"><span>{busy ? `Processing · ${completed}/4 complete` : job ? `${completed}/4 ${job.mode === 'preview' ? 'prompts ready · No images generated' : 'images complete'}` : previewMode ? 'No prompt previews yet' : 'No images generated yet'}</span>
             {previousResults && <Badge variant="outline">Previous results</Badge>}
             {job?.status === 'failed' && <Button variant="outline" size="sm" disabled={!canGenerate || previousResults} onClick={()=>generate(true)}>Resume remaining images</Button>}
@@ -243,7 +274,7 @@ function Variation({item,index,agent,interpretation,sourcePrompt,selected,onSele
   </article>
 }
 function Library({refs}) {
-  return <main className="main library-page"><div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>Reference library</h1></div><Badge variant="outline">17 agents</Badge></div>
+  return <main className="main library-page"><div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>Reference library</h1></div><Badge variant="outline">{graphicStyleVersion} · {refs.length} references</Badge></div>
     <section className="dna-section"><SectionHeading title="Global Style DNA"/><div className="dna-grid">{Object.entries(styleDNA).map(([label,value])=><Info key={label} label={label} value={value}/>)}</div></section>
     <section className="dna-section"><SectionHeading title="Agent Concept Variations"/><div className="dna-grid">{Object.entries(conceptVariations).map(([label,value])=><Info key={label} label={label} value={value}/>)}</div></section>
     <SectionHeading title="Agent references"/>

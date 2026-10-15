@@ -1,4 +1,5 @@
 import { normalizeAgent, normalizeInterpretation, buildVariationPrompt, variationPlans } from '../../shared/generation.js';
+import { refs } from '../../shared/visual-system.js';
 
 // Each page owns its preview state. Nothing is sent to a server or persisted.
 export function createPreviewClient() {
@@ -28,7 +29,7 @@ export function createPreviewClient() {
       latestJob = {
         id: input.requestId, requestId: input.requestId, createdAt: new Date().toISOString(),
         status: 'complete', error: null, agent, interpretation, sourcePrompt: input.prompt || '',
-        provider: 'browser-preview', mode: 'preview', model: null, referenceCount: 17,
+        provider: 'browser-preview', mode: 'preview', model: null, referenceCount: refs.length,
         images: variationPlans.map((plan, index) => ({
           index, title: plan.title, why: plan.why, status: 'preview', url: null,
           prompt: buildVariationPrompt(agent, interpretation, input.prompt || '', index),

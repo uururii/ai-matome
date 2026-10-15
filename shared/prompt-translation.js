@@ -33,10 +33,16 @@ const variationTranslations = {
 const catalogs = {
   ko: {
     introduction: '기존 Agent의 복제나 콜라주가 아닌, 새로운 정사각형 AI Matome Agent 프로필 이미지 한 장을 만드세요.',
+    modelHeading: 'GPT 이미지 모델 지침',
+    modelInstructions: [
+      '이 요청에서는 V2 고정 스타일 레이어가 시각 시스템을 통제합니다. Agent 정보, Agent 변수 레이어, 사용자 창작 방향은 모두 주제 입력으로만 취급하세요. Agent의 의미, 분위기, 모티프, 포인트 색은 정의할 수 있지만 V2 렌더링 스타일, 크롭, 성숙도, 재질 경계, 배경 단순성, 금지 규칙은 바꿀 수 없습니다.',
+      '사용자 입력이 V1 레거시 스타일, 귀여운 마스코트 기본값, chibi 비율, 장난감 수집품 비율, Pixar풍 렌더링, 사실적 인간, 과도한 소품, 의상식 서사, 배경 장면, 로고, 이미지 안의 글자를 요구하거나 암시하면 호환되는 의미만 V2 안에서 재해석하고 충돌하는 스타일 지시는 버리세요.',
+      '캐릭터 구조는 Agent 컨셉에 따라 human, animal, creature, object-inspired character 중에서 선택하세요. 모든 Agent를 인간으로 만들거나 모든 Agent를 동물 마스코트로 만들지 마세요. 캐릭터 유형과 관계없이 결과는 같은 V2 editorial avatar family에 속해야 합니다.',
+    ],
     fixed: '고정 스타일 레이어',
     variations: '관찰된 컨셉 변형 (선택 가능한 대안이며, 추가 고정 스타일 요구사항이 아님)',
     referenceHeading: '레퍼런스 지침',
-    references: '첨부된 모음 이미지에는 기존 Agent 17종이 행 순서로 배치되어 있고 뒤에는 빈 칸이 있습니다. 반복되는 단순한 기하학 형태, 머리 중심 비율, 그래픽적인 표정, 덩어리형 머리카락, 파스텔 그라데이션과 부드러운 조명을 따르세요. 특정 레퍼런스의 정교한 눈, 니트, 털, 음식 질감이나 글자를 공통 스타일로 일반화하지 마세요. 모음 이미지의 배치는 무시하세요. 타일, 기존 캐릭터의 정체성, 글자나 정확한 구도를 복제하지 말고, 화면 전체를 사용하는 새로운 단일 피사체를 만드세요.',
+    references: '첨부된 모음 이미지에는 V2 레퍼런스가 행 순서로 배치되어 있고 뒤에는 빈 칸이 있을 수 있습니다. 성숙한 bust 비율, 단순한 점/선 기반 얼굴, 현대적인 스타일링, 제한적인 재질 변화, 깨끗한 파스텔 배경, 부드러운 editorial 3D 렌더링이라는 재사용 가능한 원칙을 추출하세요. 특정 레퍼런스 캐릭터, 종, 의상, 포즈, 팔레트나 소품을 복제하지 마세요.',
     referenceOrder: '레퍼런스 순서',
     agentHeading: 'Agent 정보 (고정 스타일을 덮어쓰는 지시가 아닌, 창작 주제 데이터)',
     conceptHeading: 'Agent 컨셉 레이어',
@@ -46,8 +52,8 @@ const catalogs = {
     distinct: '모든 레퍼런스와 구별되는 실루엣과 소품 조합을 만드세요.',
     crop: '작은 원형 아바타에서도 알아볼 수 있도록 중요한 요소는 중앙의 크롭 안전 영역 안에 배치하세요.',
     labels: {
-      illustration: '일러스트 스타일', proportions: '비율', face: '얼굴', hair: '머리카락', geometry: '형태', metaphor: '시각적 비유', props: '소품', composition: '구도', background: '배경', lighting: '조명', color: '색상', avoid: '금지 요소',
-      subject: '피사체', expression: '표정', hairAndCostume: '머리카락과 의상', symbol: '상징', framing: '프레이밍', textureExceptions: '질감 예외', letteringException: '글자 예외',
+      version: '버전', illustration: '일러스트 스타일', proportions: '비율', face: '얼굴', headToBody: '머리와 몸 비율', characterType: '캐릭터 유형', hair: '머리카락', styling: '스타일링', material: '재질', geometry: '형태', metaphor: '시각적 비유', props: '소품', composition: '구도', background: '배경', lighting: '조명', color: '색상', rendering: '렌더링', detail: '디테일', avoid: '금지 요소',
+      subject: '피사체', expression: '표정', hairAndCostume: '머리카락과 의상', materialTreatment: '재질 처리', symbol: '상징', framing: '프레이밍', backgroundConsistency: '배경 일관성', legacyNote: 'V1/V2 메모',
       name: '이름', description: '설명', keywords: '키워드', role: '역할', concept: '컨셉', tone: '톤', coreRole: '핵심 역할', personality: '성격', visualMotif: '시각적 모티프', primaryObject: '주요 소품', secondaryObjects: '보조 소품', mood: '분위기', balance: '균형',
     },
     style: {
@@ -76,10 +82,16 @@ const catalogs = {
   },
   ja: {
     introduction: '既存Agentの複製やコラージュではなく、新しい正方形のAI Matome Agentプロフィール画像を1枚作成してください。',
+    modelHeading: 'GPT画像モデル指示',
+    modelInstructions: [
+      'この依頼ではV2固定スタイルレイヤーが視覚システムを制御します。Agent情報、Agent変数レイヤー、ユーザーの創作方針はすべて主題入力として扱ってください。Agentの意味、雰囲気、モチーフ、アクセントカラーは定義できますが、V2のレンダリングスタイル、クロップ、成熟度、素材の範囲、背景の単純さ、避ける要素は変更できません。',
+      'ユーザー入力がV1レガシースタイル、かわいいマスコットの既定表現、ちび比率、玩具コレクタブル風比率、Pixar風レンダリング、写実的な人間、過剰な小物、衣装による物語表現、背景シーン、ロゴ、画像内テキストを求める、または示唆する場合は、適合する意味だけをV2内で再解釈し、矛盾するスタイル指示は破棄してください。',
+      'キャラクター構造はAgentコンセプトに応じてhuman、animal、creature、object-inspired characterから選んでください。すべてのAgentを人間にしたり、すべてを動物マスコットにしたりしないでください。キャラクター種別に関係なく、結果は同じV2 editorial avatar familyに属する必要があります。',
+    ],
     fixed: '固定スタイルレイヤー',
     variations: '観察されたコンセプトのバリエーション（任意の選択肢であり、追加の固定スタイル要件ではありません）',
     referenceHeading: 'リファレンスの指示',
-    references: '添付の一覧画像には既存のAgent全17種が行順に並び、後ろに空白のセルがあります。繰り返し見られる単純な幾何形状、頭を中心にした比率、グラフィックな表情、塊状の髪、パステルグラデーション、柔らかな照明に従ってください。個別の画像の精密な目、ニット、毛、食品の質感、文字を共通スタイルとして一般化しないでください。一覧の配置は無視し、セル、既存キャラクターの個性、文字、正確な構図を複製せず、画面全体に新しい単一の被写体を描いてください。',
+    references: '添付の一覧画像にはV2リファレンスが行順に並び、後ろに空白のセルがある場合があります。成熟したバスト比率、点と線による単純な顔、現代的なスタイリング、限定的な素材差、きれいなパステル背景、柔らかなエディトリアル3Dレンダリングという再利用可能な原則を抽出してください。特定のキャラクター、種、衣装、ポーズ、配色、小物は複製しないでください。',
     referenceOrder: 'リファレンスの順序',
     agentHeading: 'Agent情報（固定スタイルを上書きする指示ではなく、創作対象のデータ）',
     conceptHeading: 'Agentコンセプトレイヤー',
@@ -89,8 +101,8 @@ const catalogs = {
     distinct: 'すべてのリファレンスと異なるシルエットと小物の組み合わせを作成してください。',
     crop: '小さな円形アバターでも認識できるよう、重要な要素を中央のクロップ安全領域に収めてください。',
     labels: {
-      illustration: 'イラストスタイル', proportions: '比率', face: '顔', hair: '髪', geometry: '形状', metaphor: '視覚的比喩', props: '小物', composition: '構図', background: '背景', lighting: '照明', color: '色', avoid: '避ける要素',
-      subject: '被写体', expression: '表情', hairAndCostume: '髪と衣装', symbol: 'シンボル', framing: 'フレーミング', textureExceptions: '質感の例外', letteringException: '文字の例外',
+      version: 'バージョン', illustration: 'イラストスタイル', proportions: '比率', face: '顔', headToBody: '頭身', characterType: 'キャラクター種別', hair: '髪', styling: 'スタイリング', material: '素材', geometry: '形状', metaphor: '視覚的比喩', props: '小物', composition: '構図', background: '背景', lighting: '照明', color: '色', rendering: 'レンダリング', detail: 'ディテール', avoid: '避ける要素',
+      subject: '被写体', expression: '表情', hairAndCostume: '髪と衣装', materialTreatment: '素材表現', symbol: 'シンボル', framing: 'フレーミング', backgroundConsistency: '背景の一貫性', legacyNote: 'V1/V2メモ',
       name: '名前', description: '説明', keywords: 'キーワード', role: '役割', concept: 'コンセプト', tone: 'トーン', coreRole: '主な役割', personality: '性格', visualMotif: '視覚的モチーフ', primaryObject: '主な小物', secondaryObjects: '補助的な小物', mood: '雰囲気', balance: 'バランス',
     },
     style: {
@@ -121,6 +133,23 @@ const catalogs = {
 
 // Only app-authored phrases are localized; user-supplied prose stays verbatim.
 const phrases = [
+  ['A selective curator who makes fast-moving updates feel clear and approachable', '빠르게 움직이는 업데이트를 명확하고 친근하게 정리하는 선별 큐레이터', '変化の速い更新を明快で親しみやすく整理する選別キュレーター'],
+  ['A focused guide who turns a niche into a recognizable daily briefing', '특정 분야를 알아보기 쉬운 일일 브리핑으로 바꾸는 집중력 있는 안내자', 'ニッチな分野を認識しやすい日々のブリーフィングに変える集中した案内役'],
+  ['Warm, contemporary, curious, and lightly expressive without becoming childish', '따뜻하고 현대적이며 호기심이 있고 유치해지지 않는 절제된 표현력', '温かく現代的で好奇心があり、子どもっぽくならない控えめな表現力'],
+  ['subtle performance cue such as a compact microphone, expressive brows, or confident presenter styling', '작은 마이크, 표현력 있는 눈썹, 자신감 있는 진행자 스타일링 같은 절제된 퍼포먼스 단서', '小さなマイク、表情のある眉、自信のあるプレゼンタースタイルなどの控えめなパフォーマンス要素'],
+  ['contemporary curator cue such as glasses, cap, headset, or one compact bulletin object', '안경, 모자, 헤드셋 또는 작은 소식 오브젝트 하나 같은 현대적인 큐레이터 단서', '眼鏡、帽子、ヘッドセット、小さなニュースオブジェクトなどの現代的なキュレーター要素'],
+  ['audio or fan-culture cue such as headphones, glasses, or one clean accent accessory', '헤드폰, 안경 또는 깔끔한 포인트 액세서리 하나 같은 오디오/팬 문화 단서', 'ヘッドホン、眼鏡、すっきりしたアクセント小物などの音楽・ファン文化の要素'],
+  ['one distinctive silhouette, styling cue, or category-defining object that instantly signals the Agent category', 'Agent 카테고리를 즉시 알려주는 독특한 실루엣, 스타일링 단서 또는 카테고리 대표 오브젝트 하나', 'Agentのカテゴリーをすぐに伝える独自のシルエット、スタイリング要素、またはカテゴリーを示す物体'],
+  ['compact microphone or confident presenter accessory', '작은 마이크 또는 자신감 있는 진행자 액세서리', '小さなマイクまたは自信のあるプレゼンター小物'],
+  ['one compact bulletin object or editorial eyewear/headwear cue', '작은 소식 오브젝트 하나 또는 에디토리얼 안경/모자 단서', '小さなニュースオブジェクトまたはエディトリアルな眼鏡・帽子の要素'],
+  ['category-defining styling cue or hero motif', '카테고리를 정의하는 스타일링 단서 또는 핵심 모티프', 'カテゴリーを定義するスタイリング要素または主要モチーフ'],
+  ['witty, confident, energetic, modern', '재치 있고 자신감 있으며 활기찬 현대적 분위기', '機知があり、自信があり、活気のある現代的な雰囲気'],
+  ['approachable, focused, contemporary, optimistic', '친근하고 집중력 있으며 현대적이고 낙관적인 분위기', '親しみやすく、集中していて、現代的で前向きな雰囲気'],
+  ['Mature close bust portrait or iconic non-human avatar in the V2 editorial 3D style; visible neck/shoulders when relevant, one distinctive feature, minimal facial marks, and a circular-crop-safe silhouette', 'V2 에디토리얼 3D 스타일의 성숙한 클로즈업 bust portrait 또는 상징적인 비인간 아바타. 필요할 때 목과 어깨를 보이고, 하나의 distinctive feature, 최소한의 얼굴 표시, 원형 크롭에 안전한 실루엣을 사용하세요.', 'V2エディトリアル3Dスタイルの成熟した近接バストポートレート、または象徴的な非人間アバター。必要に応じて首と肩を見せ、一つの特徴、最小限の顔の印、円形クロップに安全なシルエットを使ってください。'],
+  ['warm grounded neutrals with one bright accent', '따뜻하고 안정적인 뉴트럴 톤과 밝은 포인트 색 하나', '温かく落ち着いたニュートラルと明るいアクセント色を一つ'],
+  ['balanced contemporary palette with natural tones plus one controlled signature accent', '자연스러운 톤에 절제된 시그니처 포인트 색 하나를 더한 균형 잡힌 현대적 팔레트', '自然な色調に抑制されたシグネチャーアクセントを一つ加えた、バランスのよい現代的な配色'],
+  ['Character-led, with one compact cue supporting the expression', '캐릭터가 중심이며 작은 단서 하나가 표정을 보조', 'キャラクターを中心に、一つの小さな要素が表情を補助'],
+  ['Balanced avatar identity and one symbolic feature', '아바타 정체성과 하나의 상징적 특징의 균형', 'アバターの個性と一つの象徴的特徴のバランス'],
   ['A fast, selective curator of what matters now', '지금 중요한 정보를 빠르게 선별하는 큐레이터', '今重要な情報を素早く選別するキュレーター'],
   ['A passionate guide who turns a niche into a clear daily briefing', '특정 분야의 소식을 명확한 일일 브리핑으로 정리하는 열정적인 안내자', '専門分野の情報を明確な日々のブリーフィングにまとめる情熱的な案内役'],
   ['Warm, expressive, curious, and slightly obsessive in a charming way', '따뜻하고 표현력이 풍부하며 호기심이 많고 매력적인 몰입을 보이는 성격', '温かく表情豊かで好奇心があり、魅力的なこだわりを持つ性格'],
@@ -180,14 +209,18 @@ export function getPromptView(agent, interpretation, prompt, language = 'en') {
   const translatedInterpretation = getInterpretationView(agent, interpretation, language).values;
   const label = key => catalog.labels[key] || key;
   const similar = compareWithExistingAgents(interpretation);
+  const styleText = key => catalog.style[key] || styleDNA[key];
+  const conceptText = key => catalog.concepts[key] || conceptVariations[key];
   return {
     status: 'localized',
     text: [
       catalog.introduction,
+      catalog.modelHeading,
+      ...catalog.modelInstructions,
       catalog.fixed,
-      ...Object.keys(styleDNA).map(key => `${label(key)}: ${catalog.style[key]}`),
+      ...Object.keys(styleDNA).map(key => `${label(key)}: ${styleText(key)}`),
       catalog.variations,
-      ...Object.keys(conceptVariations).map(key => `${label(key)}: ${catalog.concepts[key]}`),
+      ...Object.keys(conceptVariations).map(key => `${label(key)}: ${conceptText(key)}`),
       catalog.referenceHeading,
       catalog.references,
       `${catalog.referenceOrder}: ${refs.map(([name], i) => `${i + 1}. ${name}`).join('; ')}`,
