@@ -46,7 +46,12 @@ const directionTranslations = {
     'one category-defining ball or sporty headwear cue': '카테고리를 보여주는 공 또는 스포티한 헤드웨어 단서 하나',
     'one simplified food-shaped motif integrated into the character': '캐릭터에 통합된 단순한 음식 형태 모티프 하나',
     'one distinctive category cue only if needed': '필요할 때만 카테고리를 보여주는 특징 하나',
-    'Mature V2 editorial avatar, close bust crop, simplified facial marks, contemporary styling, one distinctive feature, minimal props, not childish or chibi.': '성숙한 V2 에디토리얼 아바타, 클로즈업 bust crop, 단순한 얼굴 표시, 현대적인 스타일링, 하나의 뚜렷한 특징, 최소한의 소품, 유치하거나 chibi처럼 보이지 않게.',
+    'A confident adult comedy curator with refined glasses and a subtle presenter-like expression.': '세련된 안경과 은근한 진행자 표정을 가진 자신감 있는 성인 코미디 큐레이터.',
+    'A focused adult curator with clean eyewear, neat hair, and a calm editorial presence.': '깔끔한 안경, 단정한 머리, 차분한 에디토리얼 인상을 가진 집중력 있는 성인 큐레이터.',
+    'A contemporary music editor with headphones, relaxed confidence, and one vivid accent color.': '헤드폰, 여유 있는 자신감, 선명한 포인트 색 하나를 가진 현대적인 음악 에디터.',
+    'A composed sports desk character with crisp styling and one athletic visual cue.': '깔끔한 스타일링과 스포티한 시각 단서 하나를 가진 차분한 스포츠 데스크 캐릭터.',
+    'A friendly food culture guide built around one simple signature food shape.': '단순한 대표 음식 형태 하나를 중심으로 한 친근한 음식 문화 가이드.',
+    'A clear character look that expresses the agent topic through one distinctive silhouette or styling cue.': '하나의 뚜렷한 실루엣이나 스타일링 단서로 Agent 주제를 표현하는 명확한 캐릭터 인상.',
   },
   ja: {
     'auto': '自動選択',
@@ -65,7 +70,12 @@ const directionTranslations = {
     'one category-defining ball or sporty headwear cue': 'カテゴリーを示すボールまたはスポーティな帽子の要素を一つ',
     'one simplified food-shaped motif integrated into the character': 'キャラクターに統合された単純な食べ物形モチーフを一つ',
     'one distinctive category cue only if needed': '必要な場合のみカテゴリーを示す特徴を一つ',
-    'Mature V2 editorial avatar, close bust crop, simplified facial marks, contemporary styling, one distinctive feature, minimal props, not childish or chibi.': '成熟したV2エディトリアルアバター、近接バストクロップ、単純な顔の印、現代的なスタイリング、一つの明確な特徴、最小限の小物。子どもっぽさやちび風は避ける。',
+    'A confident adult comedy curator with refined glasses and a subtle presenter-like expression.': '洗練された眼鏡と控えめなプレゼンターらしい表情を持つ、自信のある大人のコメディキュレーター。',
+    'A focused adult curator with clean eyewear, neat hair, and a calm editorial presence.': 'すっきりした眼鏡、整った髪、落ち着いたエディトリアルな存在感を持つ集中した大人のキュレーター。',
+    'A contemporary music editor with headphones, relaxed confidence, and one vivid accent color.': 'ヘッドホン、自然な自信、鮮やかなアクセントカラーを一つ持つ現代的な音楽エディター。',
+    'A composed sports desk character with crisp styling and one athletic visual cue.': 'きちんとしたスタイリングとスポーティな視覚要素を一つ持つ、落ち着いたスポーツデスクキャラクター。',
+    'A friendly food culture guide built around one simple signature food shape.': '単純な代表的フード形状を中心にした親しみやすい食文化ガイド。',
+    'A clear character look that expresses the agent topic through one distinctive silhouette or styling cue.': '一つの特徴的なシルエットまたはスタイリング要素でAgentのテーマを表す明快なキャラクター像。',
   },
 };
 

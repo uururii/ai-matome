@@ -87,12 +87,23 @@ export function deriveCharacterDirection(agent) {
   const isSport = /sport|sports|축구|야구|골프|soccer|baseball|golf|スポーツ|野球|サッカー|ゴルフ/.test(text);
   const characterType = isFood || isSport ? 'object-inspired' : isMusic || isComedy || isNews ? 'human' : 'auto';
   const props = isComedy ? 'one compact microphone or presenter cue' : isNews ? 'editorial glasses, headset, or one compact bulletin object' : isMusic ? 'headphones or one clean fan-culture accent' : isSport ? 'one category-defining ball or sporty headwear cue' : isFood ? 'one simplified food-shaped motif integrated into the character' : 'one distinctive category cue only if needed';
+  const visualNotes = isComedy
+    ? 'A confident adult comedy curator with refined glasses and a subtle presenter-like expression.'
+    : isNews
+      ? 'A focused adult curator with clean eyewear, neat hair, and a calm editorial presence.'
+      : isMusic
+        ? 'A contemporary music editor with headphones, relaxed confidence, and one vivid accent color.'
+        : isSport
+          ? 'A composed sports desk character with crisp styling and one athletic visual cue.'
+          : isFood
+            ? 'A friendly food culture guide built around one simple signature food shape.'
+            : 'A clear character look that expresses the agent topic through one distinctive silhouette or styling cue.';
   return {
     characterType,
     gender: 'no preference',
     age: characterType === 'human' ? 'adult or young adult' : 'not applicable',
     colors: isComedy ? 'warm neutrals with one bright accent' : isMusic ? 'black, denim, soft neutrals, and one vivid accent' : isNews ? 'clean neutrals with blue or mint accent' : 'balanced contemporary colors with one signature accent',
     props,
-    visualNotes: 'Mature V2 editorial avatar, close bust crop, simplified facial marks, contemporary styling, one distinctive feature, minimal props, not childish or chibi.',
+    visualNotes,
   };
 }
