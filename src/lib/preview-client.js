@@ -29,10 +29,10 @@ export function createPreviewClient() {
       latestJob = {
         id: input.requestId, requestId: input.requestId, createdAt: new Date().toISOString(),
         status: 'complete', error: null, agent, interpretation, sourcePrompt: input.prompt || '',
-        provider: 'browser-preview', mode: 'preview', model: null, referenceCount: refs.length,
+        provider: 'browser-preview', mode: 'preview', model: null, referenceCount: refs.length, styleVersion: input.styleVersion === 'v1' ? 'v1' : 'v2',
         images: variationPlans.map((plan, index) => ({
           index, title: plan.title, why: plan.why, status: 'preview', url: null,
-          prompt: buildVariationPrompt(agent, interpretation, input.prompt || '', index),
+          prompt: buildVariationPrompt(agent, interpretation, input.prompt || '', index, { styleVersion: input.styleVersion }),
         })),
       };
       return snapshot(latestJob);

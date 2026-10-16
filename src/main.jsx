@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
-import { WandSparkles, Copy, Layers3, LibraryBig, Moon, Sun } from 'lucide-react';
+import { WandSparkles, Copy, Layers3, LibraryBig } from 'lucide-react';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
 import { Textarea } from './components/ui/textarea';
@@ -12,7 +12,7 @@ import './hub-theme.css';
 import { refs, styleDNA, conceptVariations, graphicStyleVersion, deriveCharacterDirection } from '../shared/visual-system.js';
 import { refs as legacyRefs, styleDNA as legacyStyleDNA, conceptVariations as legacyConceptVariations } from '../shared/visual-system-v1.js';
 import { analyzeAgent, buildImagePrompt, normalizeAgent, normalizeInterpretation, interpretationsMatch } from '../shared/generation.js';
-import { getPromptView, getVariationPromptView, getInterpretationView, promptLanguages } from '../shared/prompt-translation.js';
+import { getPromptView, getInterpretationView, promptLanguages } from '../shared/prompt-translation.js';
 import { generateProfileImages, getGenerationStatus, getGeneration, resumeGeneration } from '@generation-client';
 
 const agentExample = {
@@ -136,15 +136,15 @@ function getDirectionPlaceholder(field, language) {
 
 const uiText = {
   ko: {
-    profileGenerator: '프로필 생성기', referenceLibrary: '레퍼런스 라이브러리', setupRequired: '설정 필요', mockPreview: '목업 프리뷰',
+    profileGenerator: '프로필 생성기', referenceLibrary: '레퍼런스 라이브러리', styleLabel: '그래픽 스타일',
     heading: 'Agent Profile Generator', briefTitle: 'Agent 기본 정보', briefDesc: '기본 정보를 입력하면 캐릭터 방향은 자동 해석됩니다.',
     name: 'Agent name', description: 'Description', keywords: 'Keywords', tone: 'Tone',
     directionTitle: 'AI가 해석한 캐릭터 방향', directionDesc: '자동으로 채워진 값입니다. 원하는 이미지가 있으면 직접 수정하세요.',
     characterForm: 'Character form', gender: 'Gender', age: 'Age impression', colors: 'Preferred colors', animalMotif: 'Animal motif', objectMotif: 'Object motif / key prop', visualNotes: 'Visual notes',
     create: '4개 시안 프롬프트 만들기', generate: '4개 시안 생성', preparing: '준비 중', generating: '생성 중',
-    results: '프로필 이미지 시안', refresh: '시안 새로 만들기', regenerate: '전체 재생성',
+    results: '프로필 이미지 시안',
     send: '4개 프롬프트를 GPT로 보내기', sendReady: '전체 프롬프트를 복사하고 AI Agent Image Generator를 엽니다.', sendEmpty: '기본 정보를 입력하면 최종 GPT 배치가 준비됩니다.',
-    copyOpen: '복사하고 GPT 열기', noPreview: '아직 프롬프트 시안이 없습니다', noImages: '아직 생성된 이미지가 없습니다', noResults: '아직 생성된 결과가 없습니다.',
+    copyOpen: '복사하고 GPT 열기',
     promptReady: '프롬프트 준비됨 · 이미지는 생성하지 않음', imagesComplete: '이미지 완료', previous: '이전 결과', resume: '남은 이미지 이어서 생성', check: '진행 확인',
     advanced: '고급: 전체 프롬프트', interpretation: '이미지 해석', interpretationDesc: 'Agent 정보 기반으로 자동 해석된 캐릭터 방향입니다. 화면 언어로 보이며, 생성에는 영어 원문이 사용됩니다.',
     fullPrompt: '생성 프롬프트', fullPromptDesc: '공통 스타일 규칙과 Agent 컨셉을 결합한 프롬프트입니다.', promptPlaceholder: '아직 생성된 프롬프트가 없습니다.',
@@ -152,15 +152,15 @@ const uiText = {
     promptEnglish: '생성 요청에는 영문 원본이 사용됩니다.', promptKo: '한국어 번역 보기입니다. 실제 생성 요청에는 영문 원본이 사용됩니다.', promptJa: '日本語訳表示です。実際の生成リクエストには英語原文が使われます。',
   },
   ja: {
-    profileGenerator: 'プロフィール生成', referenceLibrary: 'リファレンス', setupRequired: '設定が必要', mockPreview: 'モックプレビュー',
+    profileGenerator: 'プロフィール生成', referenceLibrary: 'リファレンス', styleLabel: 'Graphic style',
     heading: 'Agent Profile Generator', briefTitle: 'Agent基本情報', briefDesc: '基本情報を入力すると、キャラクター方向は自動で解釈されます。',
     name: 'Agent name', description: 'Description', keywords: 'Keywords', tone: 'Tone',
     directionTitle: 'AIが解釈したキャラクター方向', directionDesc: '自動入力された値です。必要に応じて編集できます。',
     characterForm: 'Character form', gender: 'Gender', age: 'Age impression', colors: 'Preferred colors', animalMotif: 'Animal motif', objectMotif: 'Object motif / key prop', visualNotes: 'Visual notes',
     create: '4案のプロンプトを作成', generate: '4案を生成', preparing: '準備中', generating: '生成中',
-    results: 'プロフィール画像案', refresh: '案を更新', regenerate: 'すべて再生成',
+    results: 'プロフィール画像案',
     send: '4つのプロンプトをGPTへ送る', sendReady: '全プロンプトをコピーしてAI Agent Image Generatorを開きます。', sendEmpty: '基本情報を入力すると最終GPTバッチが準備されます。',
-    copyOpen: 'コピーしてGPTを開く', noPreview: 'プロンプト案はまだありません', noImages: '画像はまだ生成されていません', noResults: '生成結果はまだありません。',
+    copyOpen: 'コピーしてGPTを開く',
     promptReady: 'プロンプト準備完了 · 画像未生成', imagesComplete: '画像完了', previous: '以前の結果', resume: '残りの画像を再開', check: '進行確認',
     advanced: '詳細: 完全プロンプト', interpretation: '画像解釈', interpretationDesc: 'Agent情報にもとづいて自動解釈されたキャラクター方向です。画面言語で表示され、生成には英語原文が使われます。',
     fullPrompt: '生成プロンプト', fullPromptDesc: '共通スタイルルールとAgentコンセプトを組み合わせたプロンプトです。', promptPlaceholder: '生成されたプロンプトはまだありません。',
@@ -168,15 +168,15 @@ const uiText = {
     promptEnglish: '生成リクエストには英語原文が使われます。', promptKo: '한국어 번역 보기입니다. 실제 생성 요청에는 영문 원본이 사용됩니다.', promptJa: '日本語訳表示です。実際の生成リクエストには英語原文が使われます。',
   },
   en: {
-    profileGenerator: 'Profile generator', referenceLibrary: 'Reference library', setupRequired: 'Setup required', mockPreview: 'Mock preview',
+    profileGenerator: 'Profile generator', referenceLibrary: 'Reference library', styleLabel: 'Graphic style',
     heading: 'Agent Profile Generator', briefTitle: 'Agent basics', briefDesc: 'Enter the basics first; character direction is interpreted automatically.',
     name: 'Agent name', description: 'Description', keywords: 'Keywords', tone: 'Tone',
     directionTitle: 'AI-interpreted character direction', directionDesc: 'These values are auto-filled. Edit them when you have a clearer character in mind.',
     characterForm: 'Character form', gender: 'Gender', age: 'Age impression', colors: 'Preferred colors', animalMotif: 'Animal motif', objectMotif: 'Object motif / key prop', visualNotes: 'Visual notes',
     create: 'Create 4 variation prompts', generate: 'Generate 4 variations', preparing: 'Preparing', generating: 'Generating',
-    results: 'Profile image variations', refresh: 'Refresh previews', regenerate: 'Regenerate all',
+    results: 'Profile image variations',
     send: 'Send all 4 prompts to GPT', sendReady: 'Copy the full batch and open the AI Agent Image Generator.', sendEmpty: 'Enter the basics first to prepare the final GPT batch.',
-    copyOpen: 'Copy & open GPT', noPreview: 'No prompt previews yet', noImages: 'No images generated yet', noResults: 'No results yet.',
+    copyOpen: 'Copy & open GPT',
     promptReady: 'prompts ready · No images generated', imagesComplete: 'images complete', previous: 'Previous results', resume: 'Resume remaining images', check: 'Check progress',
     advanced: 'Advanced: full prompt', interpretation: 'Image interpretation', interpretationDesc: 'Auto-interpreted character direction based on your agent information. It is displayed in the UI language while English source text is used for generation.',
     fullPrompt: 'Generated prompt', fullPromptDesc: "Shared style rules combined with your agent's concept.", promptPlaceholder: 'No generated prompt yet.',
@@ -204,7 +204,7 @@ function App() {
   const [submitting, setSubmitting] = useState(false);
   const [pollPaused, setPollPaused] = useState(false);
   const sending = useRef(false);
-  const [dark, setDark] = useState(false);
+  const [graphicStyle, setGraphicStyle] = useState('v2');
   const [notice, setNotice] = useState('');
   const busy = submitting || job?.status === 'running';
   const remainingWait = Math.max(0, Math.ceil((retryAt - clock) / 1000));
@@ -215,8 +215,9 @@ function App() {
   const shownPrompt = prompt;
   const promptView = getPromptView(agent, reading, shownPrompt, promptLanguage);
   const interpretationView = getInterpretationView(agent, readingDraft, interpretationLanguage);
-  const previousResults = job && reading && (!interpretationsMatch(job.interpretation, reading) || (job.sourcePrompt || buildImagePrompt(job.agent, job.interpretation)) !== prompt);
-  const editedPrompt = reading && prompt !== buildImagePrompt(agent, reading);
+  const selectedStyleOptions = { styleVersion: graphicStyle };
+  const previousResults = job && reading && (!interpretationsMatch(job.interpretation, reading) || (job.sourcePrompt || buildImagePrompt(job.agent, job.interpretation, { styleVersion: job.styleVersion || graphicStyle })) !== prompt || (job.styleVersion || 'v2') !== graphicStyle);
+  const editedPrompt = reading && prompt !== buildImagePrompt(agent, reading, selectedStyleOptions);
   const variations = job?.images || [];
   const hasVariationPrompts = variations.some(image => image.prompt);
   const completed = variations.filter(image => ['complete', 'preview'].includes(image.status)).length;
@@ -229,7 +230,8 @@ function App() {
       if (status.activeJobId) {
         const activeJob = await getGeneration(status.activeJobId);
         setJob(activeJob); setAgent(activeJob.agent); setReading(activeJob.interpretation); setReadingDraft(activeJob.interpretation); setReadingRevision(value=>value+1);
-        setPrompt(activeJob.sourcePrompt || buildImagePrompt(activeJob.agent, activeJob.interpretation)); setSelected(null); setPollPaused(false);
+        setGraphicStyle(activeJob.styleVersion || 'v2');
+        setPrompt(activeJob.sourcePrompt || buildImagePrompt(activeJob.agent, activeJob.interpretation, { styleVersion: activeJob.styleVersion || 'v2' })); setSelected(null); setPollPaused(false);
       }
     } catch (e) { setConnection(null); setError(e.message); }
   };
@@ -288,7 +290,7 @@ function App() {
     try {
       const normalized = normalizeAgent(agent);
       const next = analyzeAgent(normalized);
-      setAgent(normalized); setReading(next); setReadingDraft(next); setReadingRevision(value=>value+1); setPrompt(buildImagePrompt(normalized, next));
+      setAgent(normalized); setReading(next); setReadingDraft(next); setReadingRevision(value=>value+1); setPrompt(buildImagePrompt(normalized, next, selectedStyleOptions));
       setNotice('Agent analysis updated'); setError('');
     } catch (e) { setError(e.message); }
   };
@@ -298,11 +300,11 @@ function App() {
       const autoFilled = { ...agent, ...Object.fromEntries(Object.entries(deriveCharacterDirection(agent)).map(([key, value]) => [key, agent[key] || value])) };
       const normalized = normalizeAgent(autoFilled);
       const nextReading = analyzeAgent(normalized);
-      const nextPrompt = buildImagePrompt(normalized, nextReading);
+      const nextPrompt = buildImagePrompt(normalized, nextReading, selectedStyleOptions);
       sending.current = true; setSubmitting(true); setError(''); setPollPaused(false);
       setAgent(normalized); setReading(nextReading); setReadingDraft(nextReading); setReadingRevision(value=>value+1); setPrompt(nextPrompt); setSelected(null);
       const next = await generateProfileImages({
-        agent: normalized, interpretation: nextReading, prompt: nextPrompt, requestId: crypto.randomUUID(),
+        agent: normalized, interpretation: nextReading, prompt: nextPrompt, styleVersion: graphicStyle, requestId: crypto.randomUUID(),
       });
       setJob(next); setNotice(previewMode ? '4 variation prompts prepared' : '4 variations started');
     } catch (e) { setError(e.message); if (e.retryAt) setRetryAt(e.retryAt); }
@@ -316,14 +318,14 @@ function App() {
     try {
       const next = normalizeInterpretation(readingDraft, agent);
       setReading(next); setReadingDraft(next); setReadingRevision(value=>value+1);
-      setPrompt(buildImagePrompt(agent, next)); setSelected(null);
+      setPrompt(buildImagePrompt(agent, next, selectedStyleOptions)); setSelected(null);
       setError(''); setNotice('Interpretation changes applied');
     } catch (e) { setError(e.message); }
   };
   const resetInterpretation = () => {
     const next = analyzeAgent(agent);
     setReading(next); setReadingDraft(next); setReadingRevision(value=>value+1);
-    setPrompt(buildImagePrompt(agent, next)); setSelected(null);
+    setPrompt(buildImagePrompt(agent, next, selectedStyleOptions)); setSelected(null);
     setError(''); setNotice('Original interpretation restored');
   };
   const generate = async (resume = false) => {
@@ -332,7 +334,7 @@ function App() {
       const normalized = normalizeAgent(agent);
       sending.current = true; setSubmitting(true); setError(''); setPollPaused(false);
       const next = resume && job ? await resumeGeneration(job.id) : await generateProfileImages({
-        agent: normalized, interpretation: reading, prompt: shownPrompt, requestId: crypto.randomUUID(),
+        agent: normalized, interpretation: reading, prompt: shownPrompt, styleVersion: graphicStyle, requestId: crypto.randomUUID(),
       });
       setJob(next); setSelected(null);
     } catch (e) { setError(e.message); if (e.retryAt) setRetryAt(e.retryAt); }
@@ -349,12 +351,12 @@ function App() {
   const copyVariationBatchPrompt = async ({ openGpt = false } = {}) => {
     const readyPrompts = variations.filter(image => image.prompt).sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
     const text = [
-      'Generate four separate V2 AI Matome profile image candidates from the following four prompts.',
+      `Generate four separate ${graphicStyle.toUpperCase()} AI Matome profile image candidates from the following four prompts.`,
       '',
       'Important:',
       '- Create 4 separate square 1:1 images, not a collage or grid.',
       '- Use each prompt independently.',
-      '- Keep the same V2 Graphic Style across all four.',
+      `- Keep the same ${graphicStyle.toUpperCase()} Graphic Style across all four.`,
       '- Label them Variation 1, Variation 2, Variation 3, and Variation 4.',
       '- If image-generation limits prevent creating all four images in one response, generate as many as possible and clearly say which variations still need to be generated.',
       '',
@@ -377,7 +379,7 @@ function App() {
       document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   };
-  return <div className={dark ? 'app-shell dark' : 'app-shell'}>
+  return <div className="app-shell">
     <aside className="sidebar">
       <div className="brand"><div className="brand-mark"><Layers3 size={20}/></div><div><strong>AI Matome</strong><span>Creative tools</span></div></div>
       <div className="side-label">Workspace</div>
@@ -392,10 +394,11 @@ function App() {
       <div className="side-foot"><div className="reference-stack">{refs.slice(0,3).map(r=><img key={r[0]} src={'/references/'+r[1]} alt={r[0]}/>)}</div><strong>Matome Visual System</strong><span>{graphicStyleVersion} · {refs.length} references</span><Badge variant="secondary">Current Default</Badge></div>
     </aside>
     <div className="workspace">
-      <header className="topbar"><div className="breadcrumb">Workspace <span>/</span> <strong>{tab==='generator'?t.profileGenerator:t.referenceLibrary}</strong></div><div className="top-actions"><PromptLanguageToggle value={uiLanguage} onChange={setUiLanguage} label="UI language"/><Badge variant="secondary">{connection?.configured ? (connection.provider === 'browser-preview' ? connection.label : previewMode ? t.mockPreview : connection.label) : t.setupRequired}</Badge><Button variant="ghost" size="icon" aria-label={dark?'Light mode':'Dark mode'} title={dark?'Light mode':'Dark mode'} onClick={()=>setDark(!dark)}>{dark?<Sun/>:<Moon/>}</Button></div></header>
+      <header className="topbar"><div className="breadcrumb">Workspace <span>/</span> <strong>{tab==='generator'?t.profileGenerator:t.referenceLibrary}</strong></div><div className="top-actions"><StyleToggle value={graphicStyle} onChange={value=>{setGraphicStyle(value); setJob(null); setPrompt(reading ? buildImagePrompt(agent, reading, { styleVersion: value }) : ''); setNotice('');}} label={t.styleLabel}/><PromptLanguageToggle value={uiLanguage} onChange={setUiLanguage} label="UI language"/></div></header>
       {tab==='generator' ? <main className="main">
-        <div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>{t.heading}</h1></div><Badge variant="outline"><Layers3/> {graphicStyleVersion} · {refs.length} references</Badge></div>
-        {connection?.provider !== 'browser-preview' && <div className="connection-bar" role="status"><span>{connection?.message || 'Connecting to the local generation service…'}</span><Button variant="ghost" size="sm" onClick={refreshConnection} disabled={busy}>Check connection</Button></div>}
+        <div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>{t.heading}</h1></div></div>
+        {connection?.provider === 'browser-preview' && <p className="mode-note" role="note">Offline mode: analysis and four final prompts. No images or API calls.</p>}
+        {connection && connection.provider !== 'browser-preview' && !connection.configured && <p className="mode-note" role="note">{connection.message || 'Connecting to the local generation service…'}</p>}
         {error && <div className="generation-error" role="alert">{error}</div>}
         {remainingWait > 0 && <p className="demo-note" role="status">Retry available in {remainingWait}s. No automatic API retry will be sent.</p>}
         <div className="studio-grid">
@@ -434,17 +437,17 @@ function App() {
           </section>
           <div className="right-column">
             <section className="results">
-              <SectionHeading step="03" title={t.results} action={<Button variant="outline" size="sm" disabled={!canGenerate || !job} onClick={()=>generate()}>{previewMode ? t.refresh : t.regenerate}</Button>}/>
+              <SectionHeading step="03" title={t.results}/>
               <div className="gpt-export-bar">
                 <div><strong>{t.send}</strong><span>{hasVariationPrompts ? t.sendReady : t.sendEmpty}</span></div>
                 <Button disabled={!hasVariationPrompts} onClick={()=>copyVariationBatchPrompt({ openGpt: true })}><Copy/> {t.copyOpen}</Button>
               </div>
-              <div className="generation-summary" role="status"><span>{busy ? `Processing · ${completed}/4 complete` : job ? `${completed}/4 ${job.mode === 'preview' ? t.promptReady : t.imagesComplete}` : previewMode ? t.noPreview : t.noImages}</span>
+              {(busy || job || previousResults || job?.status === 'failed' || pollPaused) && <div className="generation-summary" role="status"><span>{busy ? `Processing · ${completed}/4 complete` : job ? `${completed}/4 ${job.mode === 'preview' ? t.promptReady : t.imagesComplete}` : ''}</span>
                 {previousResults && <Badge variant="outline">{t.previous}</Badge>}
                 {job?.status === 'failed' && <Button variant="outline" size="sm" disabled={!canGenerate || previousResults} onClick={()=>generate(true)}>{t.resume}</Button>}
                 {pollPaused && <Button variant="outline" size="sm" onClick={checkProgress}>{t.check}</Button>}
-              </div>
-              {job ? <div className="variation-grid">{variations.map((r,i)=><Variation key={`${job.id}-${i}`} item={r} index={i} agent={job.agent} interpretation={job.interpretation} sourcePrompt={job.sourcePrompt} uiLanguage={uiLanguage}/>)}</div> : <p className="empty-state" role="status">{t.noResults}</p>}
+              </div>}
+              {job && <div className="variation-grid">{variations.map((r,i)=><Variation key={`${job.id}-${i}`} item={r} index={i} agent={job.agent} interpretation={job.interpretation} sourcePrompt={job.sourcePrompt} uiLanguage={uiLanguage}/>)}</div>}
             </section>
             <details className="advanced-panel">
               <summary>{t.advanced}</summary>
@@ -453,7 +456,6 @@ function App() {
               <PromptLanguageToggle value={promptLanguage} onChange={setPromptLanguage}/>
               <Textarea disabled={busy || !reading} readOnly={promptLanguage !== 'en'} lang={promptView.status === 'localized' ? promptLanguage : undefined} aria-label={t.fullPrompt} aria-describedby={reading ? 'prompt-language-status' : undefined} className="prompt-box" placeholder={t.promptPlaceholder} value={promptView.text} onChange={e=>setPrompt(e.target.value)}/>
               {reading && <p id="prompt-language-status" className="prompt-language-status" role="status">{promptView.status === 'edited' ? (uiLanguage === 'ja' ? '編集済みプロンプトは自動翻訳されません。元の編集内容を表示します。' : uiLanguage === 'en' ? 'Edited prompts are shown as written and are not auto-translated.' : '직접 수정한 프롬프트는 자동 번역하지 않습니다. 수정된 원문을 표시합니다.') : promptLanguage === 'en' ? t.promptEnglish : promptLanguage === 'ko' ? t.promptKo : t.promptJa}</p>}
-              <div className="prompt-footer"><Button disabled={!canGenerate} onClick={()=>generate()}>{busy ? `${previewMode ? t.preparing : t.generating} ${completed}/4` : previewMode ? t.refresh : t.regenerate}</Button></div>
             </section>
             </details>
           </div>
@@ -488,13 +490,16 @@ function PromptLanguageToggle({value,onChange,label = '프롬프트 보기 언�
     {promptLanguages.map(language => <button key={language} type="button" lang={language} aria-pressed={value === language} onClick={()=>onChange(language)}>{language === 'en' ? 'English' : language === 'ko' ? '한국어' : '日本語'}</button>)}
   </div>;
 }
+function StyleToggle({value,onChange,label}) {
+  return <div className="style-toggle" role="group" aria-label={label}>
+    {['v2', 'v1'].map(style => <button key={style} type="button" aria-pressed={value === style} onClick={()=>onChange(style)}>{style.toUpperCase()}</button>)}
+  </div>;
+}
 function Variation({item,index,agent,interpretation,sourcePrompt,uiLanguage = 'en'}) {
   const [copied, setCopied] = useState(false);
-  const [language, setLanguage] = useState('en');
-  const promptView = getVariationPromptView(agent, interpretation, item.prompt, item.index ?? index, language, sourcePrompt);
   return <article className="variation prompt-card">
     <div className="var-meta"><div className="variation-heading"><Badge variant="secondary">0{index+1}</Badge><strong>{item.title}</strong></div><span>{item.why}</span>
-    {item.prompt && <><details open={item.status === 'preview'}><summary>{uiLanguage === 'ja' ? '最終画像プロンプト' : uiLanguage === 'ko' ? '최종 이미지 프롬프트' : 'Final image prompt'}</summary><PromptLanguageToggle value={language} onChange={value=>{setLanguage(value);setCopied(false);}}/>{language !== 'en' && <p className="prompt-language-status" role="status">{promptView.status !== 'localized' ? '번역할 수 없는 수정본입니다. 원문을 표시합니다.' : language === 'ko' ? 'Agent 입력·직접 수정한 내용은 원문 유지' : 'Agentの入力・直接編集した内容は原文を保持'}</p>}<pre className="image-prompt" lang={promptView.status === 'localized' ? language : undefined}>{promptView.text}</pre></details><Button variant="ghost" size="sm" onClick={async()=>{try{await navigator.clipboard.writeText(promptView.text);setCopied(true);}catch{setCopied(false);}}}>{copied ? (uiLanguage === 'ja' ? 'コピー済み' : uiLanguage === 'ko' ? '복사됨' : 'Copied') : (uiLanguage === 'ja' ? '最終プロンプトをコピー' : uiLanguage === 'ko' ? '최종 프롬프트 복사' : 'Copy final prompt')}</Button></>}
+    {item.prompt && <><details open={item.status === 'preview'}><summary>{uiLanguage === 'ja' ? '最終画像プロンプト' : uiLanguage === 'ko' ? '최종 이미지 프롬프트' : 'Final image prompt'}</summary><pre className="image-prompt" lang="en">{item.prompt}</pre></details><Button variant="ghost" size="sm" onClick={async()=>{try{await navigator.clipboard.writeText(item.prompt);setCopied(true);}catch{setCopied(false);}}}>{copied ? (uiLanguage === 'ja' ? 'コピー済み' : uiLanguage === 'ko' ? '복사됨' : 'Copied') : (uiLanguage === 'ja' ? '最終プロンプトをコピー' : uiLanguage === 'ko' ? '최종 프롬프트 복사' : 'Copy final prompt')}</Button></>}
     </div>
   </article>
 }
@@ -529,7 +534,7 @@ function Library({refs, legacyRefs, uiLanguage = 'en'}) {
       v1Desc: 'A playful toy-like cute 3D mascot system, preserved for history and comparison.',
     },
   }[uiLanguage] || {};
-  return <main className="main library-page"><div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>{libraryTitle}</h1></div><Badge variant="outline">V1 / V2</Badge></div>
+  return <main className="main library-page"><div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>{libraryTitle}</h1></div></div>
     <StyleLibrarySection
       version="V2"
       status={copy.current}
@@ -563,21 +568,21 @@ function StyleLibrarySection({version, status, description, refs, style, variati
         <p>{description}</p>
       </div>
       <div className="style-library-badges">
-        <Badge variant={current ? 'secondary' : 'outline'}>{status}</Badge>
+        <Badge variant="outline">{status}</Badge>
         <Badge variant="outline">{refs.length} references</Badge>
       </div>
     </div>
     <details className="library-subsection" open>
+      <summary>{headings.references}</summary>
+      <div className={version === 'V1' ? 'matrix circle-matrix' : 'matrix'}>{refs.map(r=><article className={version === 'V1' ? 'ref-card circle-ref-card' : 'ref-card'} key={`${version}-${r[0]}`}><img src={basePath+r[1]} alt={r[0]}/><div><strong>{r[0]}</strong><span>{r[2]}</span></div></article>)}</div>
+    </details>
+    <details className="library-subsection">
       <summary>{headings.dna}</summary>
       <div className="dna-grid">{Object.entries(style).map(([label,value])=><Info key={label} label={label} value={value}/>)}</div>
     </details>
-    <details className="library-subsection" open>
+    <details className="library-subsection">
       <summary>{headings.variations}</summary>
       <div className="dna-grid">{Object.entries(variations).map(([label,value])=><Info key={label} label={label} value={value}/>)}</div>
-    </details>
-    <details className="library-subsection" open>
-      <summary>{headings.references}</summary>
-      <div className={version === 'V1' ? 'matrix circle-matrix' : 'matrix'}>{refs.map(r=><article className={version === 'V1' ? 'ref-card circle-ref-card' : 'ref-card'} key={`${version}-${r[0]}`}><img src={basePath+r[1]} alt={r[0]}/><div><strong>{r[0]}</strong><span>{r[2]}</span></div></article>)}</div>
     </details>
   </section>;
 }

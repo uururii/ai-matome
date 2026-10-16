@@ -74,7 +74,8 @@ export function createJobService({ config, provider, referenceLoader = () => bui
       const job = {
         id: randomUUID(), requestId: input.requestId, createdAt: new Date().toISOString(), status: 'running', error: null,
         agent, interpretation, sourcePrompt: input.prompt || '', provider: config.provider || 'mock', mode: getProviderStatus(provider).mode, model: getProviderStatus(provider).model, referenceCount: 0,
-        images: variationPlans.map((plan, index) => ({ index, title: plan.title, why: plan.why, status: 'pending', url: null, prompt: buildVariationPrompt(agent, interpretation, input.prompt || '', index) })),
+        styleVersion: input.styleVersion === 'v1' ? 'v1' : 'v2',
+        images: variationPlans.map((plan, index) => ({ index, title: plan.title, why: plan.why, status: 'pending', url: null, prompt: buildVariationPrompt(agent, interpretation, input.prompt || '', index, { styleVersion: input.styleVersion }) })),
       };
       // Bound memory while retaining all completed images and manifests on disk.
       if (jobs.size >= 30) jobs.delete(jobs.keys().next().value);
