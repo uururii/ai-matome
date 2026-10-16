@@ -15,11 +15,27 @@ import { analyzeAgent, buildImagePrompt, normalizeAgent, normalizeInterpretation
 import { getPromptView, getInterpretationView, promptLanguages } from '../shared/prompt-translation.js';
 import { generateProfileImages, getGenerationStatus, getGeneration, resumeGeneration } from '@generation-client';
 
-const agentExample = {
-  name: '코미디 소식통',
-  description: '코미디를 좋아하는 사람들을 위해 코미디언의 근황부터 방송, 온라인 콘텐츠, 라이브 공연과 경연 소식까지 흥미로운 정보를 모아 소개합니다.',
-  keywords: '코미디언 근황\n예능 출연\n코미디 공연\n스탠드업 코미디\n코미디 경연\n신인 코미디언',
-  tone: '밝고 재치 있지만 지나치게 가볍지 않은 분위기. 친근한 말투로 핵심을 명확하게 전달',
+const agentExamples = {
+  ko: {
+    name: '코미디 소식통',
+    description: '코미디를 좋아하는 사람들을 위해 코미디언의 근황부터 방송, 온라인 콘텐츠, 라이브 공연과 경연 소식까지 흥미로운 정보를 모아 소개합니다.',
+    keywords: '코미디언 근황\n예능 출연\n코미디 공연\n스탠드업 코미디\n코미디 경연\n신인 코미디언',
+    tone: '밝고 재치 있지만 지나치게 가볍지 않은 분위기. 친근한 말투로 핵심을 명확하게 전달',
+  },
+  ja: {
+    name: 'コメディ通信',
+    description: 'コメディ好きに向けて、芸人の近況、番組出演、オンラインコンテンツ、ライブ公演やコンテスト情報をわかりやすく紹介します。',
+    keywords: '芸人の近況\nバラエティ出演\nコメディライブ\nスタンドアップコメディ\n新人芸人',
+    tone: '明るく機知がありながら軽すぎない雰囲気。親しみやすい語り口で要点を明確に伝える',
+  },
+  en: {
+    name: 'Comedy Dispatch',
+    description: 'Curates comedian updates, TV appearances, online clips, live shows, and comedy competition news for people who follow comedy culture.',
+    keywords: 'comedian updates\nvariety appearances\ncomedy shows\nstand-up comedy\ncomedy competitions\nnew comedians',
+    tone: 'Bright and witty without feeling too casual. Friendly, clear, and concise.',
+  },
+};
+const directionExample = {
   characterForm: 'auto or human / animal / object',
   gender: 'no preference or female / male / neutral',
   age: 'adult, young adult, middle-aged, or not applicable',
@@ -120,13 +136,13 @@ const directionPlaceholders = {
     visualNotes: '洗練された眼鏡の成熟したプレゼンター。マイクは小さく、玩具風や子どもっぽさは避ける。',
   },
   en: {
-    characterForm: agentExample.characterForm,
-    gender: agentExample.gender,
-    age: agentExample.age,
-    colors: agentExample.colors,
-    animalMotif: agentExample.animalMotif,
-    objectMotif: agentExample.objectMotif,
-    visualNotes: agentExample.visualNotes,
+    characterForm: directionExample.characterForm,
+    gender: directionExample.gender,
+    age: directionExample.age,
+    colors: directionExample.colors,
+    animalMotif: directionExample.animalMotif,
+    objectMotif: directionExample.objectMotif,
+    visualNotes: directionExample.visualNotes,
   },
 };
 
@@ -136,7 +152,7 @@ function getDirectionPlaceholder(field, language) {
 
 const uiText = {
   ko: {
-    profileGenerator: '프로필 생성기', referenceLibrary: '레퍼런스 라이브러리', styleLabel: '그래픽 스타일',
+    profileGenerator: '프로필 생성기', referenceLibrary: 'Reference library', styleLabel: '그래픽 스타일',
     heading: 'Agent Profile Generator', briefTitle: 'Agent 기본 정보', briefDesc: '기본 정보를 입력하면 캐릭터 방향은 자동 해석됩니다.',
     name: 'Agent name', description: 'Description', keywords: 'Keywords', tone: 'Tone',
     directionTitle: 'AI가 해석한 캐릭터 방향', directionDesc: '자동으로 채워진 값입니다. 원하는 이미지가 있으면 직접 수정하세요.',
@@ -152,7 +168,7 @@ const uiText = {
     promptEnglish: '생성 요청에는 영문 원본이 사용됩니다.', promptKo: '한국어 번역 보기입니다. 실제 생성 요청에는 영문 원본이 사용됩니다.', promptJa: '日本語訳表示です。実際の生成リクエストには英語原文が使われます。',
   },
   ja: {
-    profileGenerator: 'プロフィール生成', referenceLibrary: 'リファレンス', styleLabel: 'Graphic style',
+    profileGenerator: 'プロフィール生成', referenceLibrary: 'Reference library', styleLabel: 'Graphic style',
     heading: 'Agent Profile Generator', briefTitle: 'Agent基本情報', briefDesc: '基本情報を入力すると、キャラクター方向は自動で解釈されます。',
     name: 'Agent name', description: 'Description', keywords: 'Keywords', tone: 'Tone',
     directionTitle: 'AIが解釈したキャラクター方向', directionDesc: '自動入力された値です。必要に応じて編集できます。',
@@ -206,6 +222,7 @@ function App() {
   const sending = useRef(false);
   const [graphicStyle, setGraphicStyle] = useState('v2');
   const [notice, setNotice] = useState('');
+  const agentExample = agentExamples[uiLanguage] || agentExamples.en;
   const busy = submitting || job?.status === 'running';
   const remainingWait = Math.max(0, Math.ceil((retryAt - clock) / 1000));
   const interpretationDirty = !interpretationsMatch(reading, readingDraft);
@@ -280,11 +297,6 @@ function App() {
       }
     }
     setAgent(next); setReading(null); setReadingDraft(null); setPrompt(''); setJob(null); setSelected(null); setNotice(''); setError(''); setPollPaused(false);
-  };
-  const refreshCharacterDirection = () => {
-    const derived = deriveCharacterDirection(agent);
-    setAgent(previous => ({ ...previous, ...derived }));
-    setReading(null); setReadingDraft(null); setPrompt(''); setJob(null); setSelected(null); setNotice(''); setError('');
   };
   const analyze = () => {
     try {
@@ -410,7 +422,7 @@ function App() {
               <Field label={t.tone} required placeholder={agentExample.tone} value={agent.tone} onChange={v=>updateWithAutoDirection('tone',v)} area/>
             </fieldset></form>
             <section className="interpretation image-interpretation">
-              <SectionHeading step="02" title={t.interpretation} description={t.interpretationDesc} action={<Button type="button" variant="outline" size="sm" disabled={!basicComplete} onClick={refreshCharacterDirection}>{uiLanguage === 'ja' ? '再解釈' : uiLanguage === 'en' ? 'Reinterpret' : '다시 해석'}</Button>}/>
+              <SectionHeading step="02" title={t.interpretation} description={t.interpretationDesc}/>
               <div className="two-col">
                 <DirectionField label={t.characterForm} value={agent.characterForm} placeholder={getDirectionPlaceholder('characterForm', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('characterForm',v)}/>
                 <DirectionField label={t.gender} value={agent.gender} placeholder={getDirectionPlaceholder('gender', uiLanguage)} uiLanguage={uiLanguage} onChange={v=>update('gender',v)}/>
@@ -503,7 +515,7 @@ function Variation({item,index,agent,interpretation,sourcePrompt,uiLanguage = 'e
   </article>
 }
 function Library({refs, legacyRefs, uiLanguage = 'en', setUiLanguage}) {
-  const libraryTitle = uiLanguage === 'ja' ? 'リファレンスライブラリ' : uiLanguage === 'ko' ? '레퍼런스 라이브러리' : 'Reference library';
+  const libraryTitle = 'Reference library';
   const copy = {
     ko: {
       current: '현재 기본 스타일',
