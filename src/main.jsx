@@ -383,7 +383,6 @@ function App() {
   return <div className="app-shell">
     <aside className="sidebar">
       <div className="brand"><div className="brand-mark"><Layers3 size={20}/></div><div><strong>AI Matome</strong><span>Creative tools</span></div></div>
-      <div className="side-label">Workspace</div>
       <nav aria-label="Workspace">
         <Button variant="ghost" className={'nav-item '+(tab==='generator'?'active':'')} aria-current={tab==='generator'?'page':undefined} onClick={()=>setTab('generator')}><WandSparkles/> {t.profileGenerator}</Button>
         <Button variant="ghost" className={'nav-item '+(tab==='library'?'active':'')} aria-current={tab==='library'?'page':undefined} onClick={()=>setTab('library')}><LibraryBig/> {t.referenceLibrary}</Button>
@@ -395,7 +394,7 @@ function App() {
       <div className="side-foot"><div className="reference-stack">{refs.slice(0,3).map(r=><img key={r[0]} src={'/references/'+r[1]} alt={r[0]}/>)}</div><strong>Matome Visual System</strong><span>{graphicStyleVersion} · {refs.length} references</span><Badge variant="secondary">Current Default</Badge></div>
     </aside>
     <div className="workspace">
-      <header className="topbar"><div className="breadcrumb">Workspace <span>/</span> <strong>{tab==='generator'?t.profileGenerator:t.referenceLibrary}</strong></div><div className="top-actions"><StyleToggle value={graphicStyle} onChange={value=>{setGraphicStyle(value); setJob(null); setPrompt(reading ? buildImagePrompt(agent, reading, { styleVersion: value }) : ''); setNotice('');}} label={t.styleLabel}/><PromptLanguageToggle value={uiLanguage} onChange={setUiLanguage} label="UI language"/></div></header>
+      <header className="topbar"><div className="top-actions"><StyleToggle value={graphicStyle} onChange={value=>{setGraphicStyle(value); setJob(null); setPrompt(reading ? buildImagePrompt(agent, reading, { styleVersion: value }) : ''); setNotice('');}} label={t.styleLabel}/><PromptLanguageToggle value={uiLanguage} onChange={setUiLanguage} label="UI language"/></div></header>
       {tab==='generator' ? <main className="main">
         <div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>{t.heading}</h1></div></div>
         {connection?.provider === 'browser-preview' && <p className="mode-note" role="note">Offline mode: analysis and four final prompts. No images or API calls.</p>}
