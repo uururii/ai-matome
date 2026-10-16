@@ -394,9 +394,8 @@ function App() {
       <div className="side-foot"><div className="reference-stack">{refs.slice(0,3).map(r=><img key={r[0]} src={'/references/'+r[1]} alt={r[0]}/>)}</div><strong>Matome Visual System</strong><span>{graphicStyleVersion} · {refs.length} references</span><Badge variant="secondary">Current Default</Badge></div>
     </aside>
     <div className="workspace">
-      <header className="topbar"><div className="top-actions">{tab==='generator' && <StyleToggle value={graphicStyle} onChange={value=>{setGraphicStyle(value); setJob(null); setPrompt(reading ? buildImagePrompt(agent, reading, { styleVersion: value }) : ''); setNotice('');}} label={t.styleLabel}/>}<PromptLanguageToggle value={uiLanguage} onChange={setUiLanguage} label="UI language"/></div></header>
       {tab==='generator' ? <main className="main">
-        <div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>{t.heading}</h1></div></div>
+        <div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>{t.heading}</h1></div><div className="top-actions"><StyleToggle value={graphicStyle} onChange={value=>{setGraphicStyle(value); setJob(null); setPrompt(reading ? buildImagePrompt(agent, reading, { styleVersion: value }) : ''); setNotice('');}} label={t.styleLabel}/><PromptLanguageToggle value={uiLanguage} onChange={setUiLanguage} label="UI language"/></div></div>
         {connection?.provider === 'browser-preview' && <p className="mode-note" role="note">Offline mode: analysis and four final prompts. No images or API calls.</p>}
         {connection && connection.provider !== 'browser-preview' && !connection.configured && <p className="mode-note" role="note">{connection.message || 'Connecting to the local generation service…'}</p>}
         {error && <div className="generation-error" role="alert">{error}</div>}
@@ -461,7 +460,7 @@ function App() {
           </div>
         </div>
         <div className="notice" role="status">{notice}</div>
-      </main> : <Library refs={refs} legacyRefs={legacyRefs} uiLanguage={uiLanguage}/>}
+      </main> : <Library refs={refs} legacyRefs={legacyRefs} uiLanguage={uiLanguage} setUiLanguage={setUiLanguage}/>}
     </div>
   </div>
 }
@@ -503,7 +502,7 @@ function Variation({item,index,agent,interpretation,sourcePrompt,uiLanguage = 'e
     </div>
   </article>
 }
-function Library({refs, legacyRefs, uiLanguage = 'en'}) {
+function Library({refs, legacyRefs, uiLanguage = 'en', setUiLanguage}) {
   const libraryTitle = uiLanguage === 'ja' ? 'リファレンスライブラリ' : uiLanguage === 'ko' ? '레퍼런스 라이브러리' : 'Reference library';
   const copy = {
     ko: {
@@ -534,7 +533,7 @@ function Library({refs, legacyRefs, uiLanguage = 'en'}) {
       v1Desc: 'A playful toy-like cute 3D mascot system, preserved for history and comparison.',
     },
   }[uiLanguage] || {};
-  return <main className="main library-page"><div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>{libraryTitle}</h1></div></div>
+  return <main className="main library-page"><div className="page-heading"><div><div className="eyebrow">AI MATOME</div><h1>{libraryTitle}</h1></div><div className="top-actions"><PromptLanguageToggle value={uiLanguage} onChange={setUiLanguage} label="UI language"/></div></div>
     <StyleLibrarySection
       version="V2"
       status={copy.current}
