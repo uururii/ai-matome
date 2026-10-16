@@ -371,13 +371,23 @@ function App() {
     }
     catch { setNotice(t.copyUnavailable); }
   };
+  const openLibrarySection = (sectionId) => {
+    setTab('library');
+    window.requestAnimationFrame(() => {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
   return <div className={dark ? 'app-shell dark' : 'app-shell'}>
     <aside className="sidebar">
       <div className="brand"><div className="brand-mark"><Layers3 size={20}/></div><div><strong>AI Matome</strong><span>Creative tools</span></div></div>
       <div className="side-label">Workspace</div>
       <nav aria-label="Workspace">
         <Button variant="ghost" className={'nav-item '+(tab==='generator'?'active':'')} aria-current={tab==='generator'?'page':undefined} onClick={()=>setTab('generator')}><WandSparkles/> {t.profileGenerator}</Button>
-        <Button variant="ghost" className={'nav-item '+(tab==='library'?'active':'')} aria-current={tab==='library'?'page':undefined} onClick={()=>setTab('library')}><LibraryBig/> {t.referenceLibrary} <Badge variant="outline">{refs.length}</Badge></Button>
+        <Button variant="ghost" className={'nav-item '+(tab==='library'?'active':'')} aria-current={tab==='library'?'page':undefined} onClick={()=>setTab('library')}><LibraryBig/> {t.referenceLibrary}</Button>
+        <div className="nav-subitems" aria-label="Graphic style versions">
+          <button type="button" onClick={()=>openLibrarySection('style-v2')}><span>V2</span><small>Current</small></button>
+          <button type="button" onClick={()=>openLibrarySection('style-v1')}><span>V1</span><small>Legacy</small></button>
+        </div>
       </nav>
       <div className="side-foot"><div className="reference-stack">{refs.slice(0,3).map(r=><img key={r[0]} src={'/references/'+r[1]} alt={r[0]}/>)}</div><strong>Matome Visual System</strong><span>{graphicStyleVersion} · {refs.length} references</span><Badge variant="secondary">Current Default</Badge></div>
     </aside>
@@ -545,7 +555,7 @@ function Library({refs, legacyRefs, uiLanguage = 'en'}) {
 }
 
 function StyleLibrarySection({version, status, description, refs, style, variations, basePath, headings, current = false}) {
-  return <section className={'style-library-section '+(current ? 'current' : 'legacy')}>
+  return <section id={version === 'V2' ? 'style-v2' : 'style-v1'} className={'style-library-section '+(current ? 'current' : 'legacy')}>
     <div className="style-library-head">
       <div>
         <div className="eyebrow">{version}</div>
@@ -567,7 +577,7 @@ function StyleLibrarySection({version, status, description, refs, style, variati
     </details>
     <details className="library-subsection" open>
       <summary>{headings.references}</summary>
-      <div className="matrix">{refs.map(r=><article className="ref-card" key={`${version}-${r[0]}`}><img src={basePath+r[1]} alt={r[0]}/><div><strong>{r[0]}</strong><span>{r[2]}</span></div></article>)}</div>
+      <div className={version === 'V1' ? 'matrix circle-matrix' : 'matrix'}>{refs.map(r=><article className={version === 'V1' ? 'ref-card circle-ref-card' : 'ref-card'} key={`${version}-${r[0]}`}><img src={basePath+r[1]} alt={r[0]}/><div><strong>{r[0]}</strong><span>{r[2]}</span></div></article>)}</div>
     </details>
   </section>;
 }

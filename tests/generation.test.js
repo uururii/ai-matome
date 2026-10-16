@@ -70,12 +70,12 @@ test('V2 references are composed read-only while V1 references remain available'
   const sheet = await buildReferenceSheet('public/references');
   assert.equal(graphicStyleVersion, 'V2');
   assert.equal(legacyGraphicStyleVersion, 'V1');
-  assert.equal(sheet.count, 12);
+  assert.equal(sheet.count, refs.length);
   assert.equal(legacyRefs.length, 17);
   assert.deepEqual(sheet.hashes, before);
   const metadata = await sharp(sheet.buffer).metadata();
   assert.equal(metadata.width, 1280);
-  assert.equal(metadata.height, 768);
+  assert.equal(metadata.height, 2560);
   const after = await Promise.all(refs.map(async ([, file]) => hashImage(await readFile(join('public/references', file)))));
   assert.deepEqual(after, before);
   assert.ok((await readFile(join('public/references/v1', 'AI_Profile_Image_CinemaHunter.png'))).length > 0);
@@ -87,7 +87,7 @@ test('all variations keep the same reference-grounded fixed style, including edi
   const fixedLayer = prompt => prompt.split('FIXED STYLE LAYER - V2 CURRENT / DEFAULT\n\n')[1].split('\n\nOBSERVED V2 CONCEPT VARIATIONS')[0];
   const fixed = fixedLayer(base);
   for (const text of Object.values(styleDNA)) assert.ok(fixed.includes(text));
-  for (const phrase of ['V2 Current / Default', 'mature avatar proportions', 'Simplified face language', 'material diversity', 'Soft studio lighting', 'generic cute mascot', 'photorealistic human rendering', 'excessive props']) assert.ok(fixed.includes(phrase), phrase);
+  for (const phrase of ['V2 Current / Default', 'close profile-avatar proportions', 'Simplified face language', 'material diversity', 'Soft studio lighting', 'generic cute mascot', 'photorealistic human rendering', 'excessive props']) assert.ok(fixed.includes(phrase), phrase);
   for (const text of Object.values(conceptVariations)) assert.ok(!fixed.includes(text));
   assert.ok(!fixed.includes('clay-like'));
   assert.ok(!fixed.includes('70–85%'));

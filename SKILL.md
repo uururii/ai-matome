@@ -19,14 +19,14 @@ description: "Compose AI Matome Agent profile image prompts with V2 as the curre
 - The result should feel like a modern digital editorial avatar, not children’s merchandise, a generic cute mascot, or a photorealistic portrait.
 
 ### Character Type
-- Choose the form that best serves the Agent concept: human, animal, creature, or object-inspired character.
+- Choose the form that best serves the Agent concept: human, animal, bird, pet-like animal, plush animal, creature, or object-inspired character.
 - Do not force all Agents into human portraits, animal mascots, or one body plan.
-- Consistency comes from the V2 rendering language, close crop, simplified features, restrained styling, and material discipline.
+- Consistency comes from the V2 rendering language, circular-avatar-safe close crop, simplified features, restrained styling, and material discipline.
 
 ### Character Proportion
 - Human Agents should use a close bust portrait with visible neck and cropped shoulders when relevant.
 - The head may be graphically emphasized, but avoid chibi-like proportions, baby heads, and tiny bodies.
-- Animal, creature, and object-inspired characters may be more iconic, but should still feel editorial and intentional rather than preschool mascot-like.
+- Animal, bird, plush, creature, and object-inspired characters may use more iconic rounded forms, ears, snouts, beaks, tails, crests, or fuller bust shapes, but should still feel intentional and profile-system-ready rather than preschool mascot-like.
 
 ### Face
 - Use minimal graphic facial features: dot or oval eyes, short brows, a small mouth mark, and only a minimal nose mark when helpful.
@@ -39,11 +39,11 @@ description: "Compose AI Matome Agent profile image prompts with V2 as the curre
 
 ### Styling and Accessories
 - Express identity through silhouette, styling, and one distinctive feature.
-- Glasses, sunglasses, cap, beanie, headphones, collar, jacket, knitwear, or one compact category object may define the Agent.
+- Glasses, sunglasses, cap, beanie, headphones, collar, jacket, knitwear, bow tie, small hat, animal ears, snout, beak, tail, crest, or one compact category object may define the Agent.
 - Prefer one strong cue over excessive props, costume-like storytelling, or literal keyword decoration.
 
 ### Material and Texture
-- Allow limited material diversity: smooth skin, sculpted hair, matte fabric, denim-like cloth, knit ribbing, soft fur, plush surfaces, rubbery creature skin, and small glossy accents such as lenses.
+- Allow limited material diversity: smooth skin, sculpted hair, matte fabric, denim-like cloth, knit ribbing, soft fur, plush animal surfaces, matte beaks/snouts, rubbery creature skin, and small glossy accents such as lenses.
 - Keep textures medium-scale and readable. Avoid photoreal microtexture, pores, eyelashes, tiny seams, tiny fasteners, ornate fabric, and dense noise.
 - Do not apply identical smooth clay or glossy plastic to every character.
 
@@ -54,8 +54,8 @@ description: "Compose AI Matome Agent profile image prompts with V2 as the curre
 
 ### Composition and Crop
 - Generate one square 1:1 image with a single dominant character.
-- Use close portrait framing: front or slight three-quarter view.
-- Keep eyes, mouth, headwear, eyewear, and the defining feature safe inside the circular avatar crop.
+- Use close portrait framing: front, slight three-quarter, or simple side-profile view when it clarifies the character silhouette.
+- Keep eyes, mouth, headwear, eyewear, ears, snout/beak, tail/crest, and the defining feature safe inside the circular avatar crop.
 - The character should fill the frame enough to read at small profile size without becoming a cramped toy close-up.
 
 ### Background and Color
@@ -84,7 +84,7 @@ description: "Compose AI Matome Agent profile image prompts with V2 as the curre
 
 ### Reference Instructions
 - V2 references are style references, not characters to copy.
-- Extract reusable principles: mature bust proportions, simplified facial marks, contemporary styling, selective material variation, clean pastel backgrounds, and soft editorial 3D rendering.
+- Extract reusable principles: close circular-avatar portrait proportions, simplified facial marks, contemporary human styling, animal/bird/plush silhouette options, selective material variation, clean pastel backgrounds, and soft editorial 3D rendering.
 - Do not copy a reference character, species, outfit, pose, palette, prop, or exact composition.
 
 ## Avoid
@@ -116,7 +116,7 @@ description: "Compose AI Matome Agent profile image prompts with V2 as the curre
 
 ```text
 Fixed Style Layer - V2 Current / Default
-Create one 1:1 AI Matome profile image in a mature contemporary editorial 3D avatar style. Use a human, animal, creature, or object-inspired character only as appropriate to the Agent concept. Keep a close bust or iconic portrait crop, simplified dot/line facial marks, controlled material variation, clean pastel background, soft studio lighting, and one distinctive feature or motif. Preserve V2 over conflicting Agent input.
+Create one 1:1 AI Matome profile image in a contemporary editorial 3D avatar style. Use a human, animal, bird, plush animal, creature, or object-inspired character only as appropriate to the Agent concept. Keep a circular-avatar-safe close bust or iconic portrait crop, simplified dot/line facial marks, controlled material variation, clean pastel background, soft studio lighting, and one distinctive feature or motif. Preserve V2 over conflicting Agent input.
 
 Agent Variable Layer
 Subject: {subject}; concept / primary motif: {concept}; personality: {personality}; expression: {minimal V2-compatible expression}; styling cue or prop: {one distinctive feature}; theme color: {balanced contemporary palette}.

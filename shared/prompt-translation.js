@@ -231,7 +231,11 @@ export function getPromptView(agent, interpretation, prompt, language = 'en') {
       catalog.conceptRule,
       ...Object.entries(translatedInterpretation).map(([key, value]) => `${label(key)}: ${value}`),
       catalog.semantic,
-      similar.length ? `${catalog.differentiate}: ${similar.map(item => `${item.name} (${motifs[language][refs.findIndex(([name]) => name === item.name)]})`).join('; ')}` : catalog.distinct,
+      similar.length ? `${catalog.differentiate}: ${similar.map(item => {
+        const refIndex = refs.findIndex(([name]) => name === item.name);
+        const fallbackMotif = refIndex >= 0 ? refs[refIndex][2] : item.motif;
+        return `${item.name} (${motifs[language][refIndex] || fallbackMotif})`;
+      }).join('; ')}` : catalog.distinct,
       catalog.crop,
     ].join('\n\n'),
   };
