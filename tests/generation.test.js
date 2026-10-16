@@ -55,11 +55,16 @@ test('prompts preserve every input and fixed constraints with four distinct dire
     for (const value of Object.values(agent)) assert.ok(prompt.includes(value));
     assert.ok(prompt.includes(interpretation.visualMotif));
     assert.ok(prompt.includes('GPT IMAGE MODEL INSTRUCTIONS'));
+    assert.ok(prompt.includes('VARIATION TARGET'));
+    assert.ok(prompt.includes('Required character type'));
+    assert.ok(prompt.includes('VARIATION INSTRUCTIONS'));
+    assert.ok(prompt.includes('VALIDATION BEFORE FINAL IMAGE'));
     assert.ok(prompt.includes('They may define who the Agent is'));
     assert.ok(prompt.includes('Select the character structure from the Agent concept'));
     assert.ok(prompt.includes('FIXED STYLE LAYER'));
     assert.ok(prompt.includes('V2 reference images'));
     assert.ok(prompt.includes('Add a ribbon prop'));
+    assert.ok(prompt.includes('Do not include alternate forms from other variations'));
   }
   assert.equal(buildVariationPrompt(agent, interpretation, base, 0).match(/^FIXED STYLE LAYER - V2 CURRENT \/ DEFAULT$/gm).length, 1);
   assert.throws(() => normalizeAgent({ ...agent, name: '' }), /name is required/);
@@ -84,8 +89,9 @@ test('V2 references are composed read-only while V1 references remain available'
 test('all variations keep the same reference-grounded fixed style, including edited prompts', () => {
   const interpretation = analyzeAgent(agent);
   const base = buildImagePrompt(agent, interpretation);
-  const fixedLayer = prompt => prompt.split('FIXED STYLE LAYER - V2 CURRENT / DEFAULT\n\n')[1].split('\n\nOBSERVED V2 CONCEPT VARIATIONS')[0];
-  const fixed = fixedLayer(base);
+  const baseFixedLayer = prompt => prompt.split('FIXED STYLE LAYER - V2 CURRENT / DEFAULT\n\n')[1].split('\n\nOBSERVED V2 CONCEPT VARIATIONS')[0];
+  const variationFixedLayer = prompt => prompt.split('FIXED STYLE LAYER - V2 CURRENT / DEFAULT\n\n')[1].split('\n\nREFERENCE INSTRUCTIONS')[0];
+  const fixed = baseFixedLayer(base);
   for (const text of Object.values(styleDNA)) assert.ok(fixed.includes(text));
   for (const phrase of ['V2 Current / Default', 'close profile-avatar proportions', 'Simplified face language', 'material diversity', 'Soft studio lighting', 'generic cute mascot', 'photorealistic human rendering', 'excessive props']) assert.ok(fixed.includes(phrase), phrase);
   for (const text of Object.values(conceptVariations)) assert.ok(!fixed.includes(text));
@@ -93,9 +99,11 @@ test('all variations keep the same reference-grounded fixed style, including edi
   assert.ok(!fixed.includes('70–85%'));
   for (let i = 0; i < 4; i++) {
     const final = buildVariationPrompt(agent, interpretation, 'Old style: detailed hair, polished anime beauty and decorative props', i);
-    assert.equal(fixedLayer(final), fixed);
-    assert.ok(final.includes('the current fixed style and Avoid take priority'));
+    assert.equal(variationFixedLayer(final), fixed);
+    assert.ok(final.includes('the current fixed style, selected variation type, and Avoid rules take priority'));
     assert.ok(final.includes('subordinate to the V2 FIXED STYLE LAYER and Avoid'));
+    assert.ok(final.includes('Validation'));
+    assert.ok(final.includes('Do not show a human, animal, and object version together'));
   }
   assert.ok(interpretation.secondaryObjects.includes('small supporting prop'));
 });

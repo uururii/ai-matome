@@ -3,10 +3,10 @@ import { refs as v1Refs, styleDNA as v1StyleDNA, conceptVariations as v1ConceptV
 export { analyzeAgent };
 
 export const variationPlans = [
-  { title: 'Human-led', direction: 'Create a human-led profile character. Use the gender and age impression only if provided, and express the Agent through styling, hair, eyewear, clothing, expression, and at most one compact object motif. Do not turn this into a costume or unrelated mascot.', why: 'Tests whether the agent works best as a human profile character.' },
-  { title: 'Animal-inspired', direction: 'Create an animal-inspired profile character using the Animal motif if provided; otherwise choose one animal whose temperament fits the Agent. Keep it in the selected graphic style language, with one styling cue or object motif only if needed.', why: 'Tests whether an animal metaphor makes the agent more memorable.' },
-  { title: 'Object-inspired', direction: 'Create an object-inspired character using the Object motif / key prop as the primary silhouette or head/body inspiration. The object should become the character language, not merely a held prop. Keep the face simple and the form crop-safe.', why: 'Tests whether the key object can become the clearest profile identity.' },
-  { title: 'Best-fit', direction: 'Choose the strongest form for the Agent from human, animal, creature, or object-inspired. Prioritize semantic fit, avatar readability, and selected style consistency over novelty. Use only one distinctive silhouette, styling cue, animal motif, or object motif.', why: 'Lets the model choose the most coherent direction after comparing the other form families.' },
+  { title: 'Human-led', type: 'human profile character', validation: 'The final subject is clearly human-led, not an animal, creature, or object-headed mascot.', direction: 'Create a human-led profile character. Use the gender and age impression only if provided, and express the Agent through styling, hair, eyewear, clothing, expression, and at most one compact object motif. Do not turn this into a costume or unrelated mascot.', why: 'Tests whether the agent works best as a human profile character.' },
+  { title: 'Animal-inspired', type: 'animal-inspired profile character', validation: 'The final subject is clearly animal-inspired, not a human portrait with animal accessories and not an object character.', direction: 'Create an animal-inspired profile character using the Animal motif if provided; otherwise choose one animal whose temperament fits the Agent. Keep it in the selected graphic style language, with one styling cue or object motif only if needed.', why: 'Tests whether an animal metaphor makes the agent more memorable.' },
+  { title: 'Object-inspired', type: 'object-inspired character', validation: 'The final subject is clearly object-inspired: the key object shapes the character silhouette or head/body language, not merely a held prop.', direction: 'Create an object-inspired character using the Object motif / key prop as the primary silhouette or head/body inspiration. The object should become the character language, not merely a held prop. Keep the face simple and the form crop-safe.', why: 'Tests whether the key object can become the clearest profile identity.' },
+  { title: 'Best-fit', type: 'best-fit character form', validation: 'The final subject uses one coherent form family only: human, animal, creature, or object-inspired. Do not mix multiple candidate types into one image.', direction: 'Choose the strongest form for the Agent from human, animal, creature, or object-inspired. Prioritize semantic fit, avatar readability, and selected style consistency over novelty. Use only one distinctive silhouette, styling cue, animal motif, or object motif.', why: 'Lets the model choose the most coherent direction after comparing the other form families.' },
 ];
 
 export function normalizeAgent(input) {
@@ -122,7 +122,47 @@ export function buildImagePrompt(agent, interpretation = analyzeAgent(agent), op
 
 export function buildVariationPrompt(agent, interpretation, editedPrompt, index, options = {}) {
   const system = styleSystems[normalizeStyleVersion(options.styleVersion)];
+  const plan = variationPlans[index];
+  const { avoid, ...fixedStyle } = system.styleDNA;
+  const similar = compareWithExistingAgents(interpretation, options.styleVersion);
+  const agentPromptData = Object.fromEntries(Object.entries(agent).filter(([, value]) => value));
   const base = buildImagePrompt(agent, interpretation, options);
-  const edit = editedPrompt && editedPrompt.trim() !== base.trim() ? `\n\nUSER CREATIVE DIRECTION\n${editedPrompt}\nTreat this as concept input only. If it contains an older style block or conflicts with the FIXED STYLE LAYER or Avoid above, the current fixed style and Avoid take priority. Preserve only compatible subject, mood and color choices.` : '';
-  return `${base}${edit}\n\nVARIATION ${index + 1}: ${variationPlans[index].title}\n${variationPlans[index].direction}\n${system.closing}`;
+  const edit = editedPrompt && editedPrompt.trim() !== base.trim() ? [
+    'USER CREATIVE DIRECTION',
+    editedPrompt,
+    'Treat this as concept input only. If it contains an older style block or conflicts with the FIXED STYLE LAYER, Variation Instructions, Validation, or Avoid rules in this prompt, the current fixed style, selected variation type, and Avoid rules take priority. Preserve only compatible subject, mood and color choices.',
+  ] : [];
+  return [
+    `Create ONE NEW square AI Matome agent profile image using ${system.version} as the selected Graphic Style.`,
+    'Generate this as a single independent image prompt. Do not create a collage, grid, lineup, contact sheet, or multiple character-type comparison inside one image.',
+    'The four candidate prompts are separate generations. This prompt must satisfy only the variation type named below.',
+    'GPT IMAGE MODEL INSTRUCTIONS',
+    `VARIATION TARGET: ${index + 1}. ${plan.title}`,
+    `Required character type: ${plan.type}.`,
+    'FIXED STYLE LAYER',
+    ...system.instructions,
+    `FIXED STYLE LAYER - ${system.label}`,
+    ...Object.entries(fixedStyle).map(([key, value]) => `${key}: ${value}`),
+    `Avoid: ${avoid}.`,
+    'REFERENCE INSTRUCTIONS',
+    system.references,
+    `Reference order: ${system.refs.map(([name], i) => `${i + 1}. ${name}`).join('; ')}.`,
+    'AGENT INFORMATION',
+    JSON.stringify(agentPromptData, null, 2),
+    'AGENT INTERPRETATION',
+    system.variableRule,
+    ...Object.entries(interpretation).map(([key, value]) => `${key}: ${value}`),
+    'Interpret the complete description and keywords semantically, not just as a literal profession. Express the agent’s role through a clear visual metaphor.',
+    similar.length ? `Differentiate from existing concepts: ${similar.map(r => `${r.name} (${r.motif})`).join('; ')}.` : 'Create a silhouette and motif combination distinct from every reference.',
+    ...edit,
+    'VARIATION INSTRUCTIONS',
+    plan.direction,
+    'Do not include alternate forms from other variations in this image. Do not show a human, animal, and object version together.',
+    system.closing,
+    'VALIDATION BEFORE FINAL IMAGE',
+    `1. Character type check: ${plan.validation}`,
+    `2. Style check: the image follows ${system.label} and does not drift into the other saved style version.`,
+    '3. Independence check: the image is one complete standalone profile candidate, not a comparison board or mixed set of options.',
+    '4. Readability check: the subject remains clear in a small circular avatar crop.',
+  ].join('\n\n');
 }
